@@ -56,7 +56,7 @@ Este proyecto proporciona una plataforma donde los usuarios pueden:
 Grupo4SApplication
 ├── src
    ├── main
-   │   ├── java/com/grupoCuatroS
+   │   ├── java/com/cuatroSReal
    │   │   ├── controller        # Controladores del proyecto
    │   │   ├── init              # Iniciador de aplicación
    │   │   ├── service           # Lógica de negocio
@@ -65,7 +65,7 @@ Grupo4SApplication
    │       ├── templates          # Vistas HTML (Thymeleaf)
    │       └── static             # Recursos estáticos (CSS, JS, imágenes)
    ├── test
-       └── java/com/grupoCuatroS
+       └── java/com/cuatroSReal
 ```
 
 ---
