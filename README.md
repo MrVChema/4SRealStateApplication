@@ -76,7 +76,7 @@ Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo `LICENS
 ---
 
 ## **Contacto**
-- **Autor**: Chema Sánchez MrVergil - Equipo Desarrollo 4S Real State
+- **Autor**: Chema Sánchez (MrVergil) - Equipo Desarrollo 4S Real State
 - **Correo**: jose.sanchez@grupo4s.com
 - **Repositorio**: [https://github.com/usuario/Grupo4SApplication](https://github.com/MrVChema/4SRealStateApplication.git)
 
