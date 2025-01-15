@@ -1,5 +1,8 @@
 /Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/controller/ReTechDataController.java
 /Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/init/CuatroSRealApplication.java
 /Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/init/ServletInitializer.java
+/Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/model/CatalogDataModel.java
+/Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/model/FiltrosConsultaBigDataModel.java
+/Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/model/FiltrosConsultaDormitoriosModel.java
 /Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/model/ReTechDataModel.java
 /Users/Usuario/eclipse-workspace/4SRealEstateApplication/src/main/java/com/cuatroSReal/service/ReTechDataService.java
