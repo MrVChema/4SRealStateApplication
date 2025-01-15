@@ -1,0 +1,12 @@
+2025-01-15T11:38:51.773-06:00  INFO 40852 --- [cuatroSRealApplication] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (1 addition, 0 deletions, 0 modifications)
+2025-01-15T11:38:52.855-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : Starting CuatroSRealApplication using Java 23.0.1 with PID 40852 (/Users/Usuario/eclipse-workspace/4SRealEstateApplication/target/classes started by Usuario in /Users/Usuario/eclipse-workspace/4SRealEstateApplication)
+2025-01-15T11:38:52.856-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : No active profile set, falling back to 1 default profile: "default"
+2025-01-15T11:38:53.667-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8084 (http)
+2025-01-15T11:38:53.678-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-01-15T11:38:53.679-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2025-01-15T11:38:53.712-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-01-15T11:38:53.713-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 840 ms
+2025-01-15T11:38:53.905-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-01-15T11:38:53.924-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8084 (http) with context path '/'
+2025-01-15T11:38:53.941-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : Started CuatroSRealApplication in 1.226 seconds (process running for 21985.682)
+2025-01-15T11:38:53.945-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
