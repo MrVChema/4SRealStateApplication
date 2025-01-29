@@ -18,26 +18,27 @@
 		    
 		    <form class="needs-validation" novalidate>
 		    	<label>Estado:</label>
-				<select class="selectpicker" name="estados" multiple data-live-search="true">
-					<option value="" disabled selected>Seleccione..</option>
+				<select class="selectpicker" name="estados" multiple data-live-search="true" title="Seleccione...">
     				<option th:each="estado : ${estadosList}" th:value="${estado.catalogName}" th:text="${estado.catalogName}"></option>
 				</select>
 				&emsp;
-				<label>Tipo:</label> 
-				<select class="selectpicker" name="tipos" multiple data-live-search="true">
-					<option value="" disabled selected>Seleccione..</option>
-    				<option th:each="tipo : ${tipoList}" th:value="${tipo.catalogName}" th:text="${tipo.catalogName}"></option>
-				</select>
-				&emsp;
 				<label>Zona:</label> 
-				<select class="selectpicker" name="zonas" multiple data-live-search="true">
-					<option value="" disabled selected>Seleccione..</option>
+				<select class="selectpicker" name="zonas" multiple data-live-search="true" title="Seleccione...">
     				<option th:each="zona : ${zonaList}" th:value="${zona.catalogName}" th:text="${zona.catalogName}"></option>
 				</select>
 				&emsp;
+				<label>Tipo:</label> 
+				<select class="selectpicker" name="tipos" multiple data-live-search="true" title="Seleccione...">
+					<option value="VH">Vivienda Horizontal</option>
+					<option value="VV">Vivienda Vertical</option>
+					<option value="L">Locales Comerciales</option>
+					<option value="O">Oficina</option>
+					<option value="B">Bodega</option>
+					<option value="S">Sin definir</option>
+				</select>
+				&emsp;
 				<label>Segmento:</label> 
-				<select class="selectpicker" name="segmentos" multiple data-live-search="true">
-					<option value="" disabled selected>Seleccione..</option>
+				<select class="selectpicker" name="segmentos" multiple data-live-search="true" title="Seleccione...">
     				<option th:each="segmento : ${segmentoList}" th:value="${segmento.catalogName}" th:text="${segmento.catalogName}"></option>
 				</select>
 				</br>
@@ -45,63 +46,378 @@
 				<input type="text" id="iniPrecioFBusc" name="iniPrecioFBusc" size="10" /> <label> a </label>
 				<input type="text" id="finPrecioFBusc" name="finPrecioFBusc" size="10" />
 				&emsp;
-				<label>Precio m2:</label> 
+				<label>Precio m&sup2;:</label> 
 				<input type="text" id="iniPrecioM2Busc" name="iniPrecioM2Busc" size="10" /> <label> a </label>
 				<input type="text" id="finPrecioM2Busc" name="finPrecioM2Busc" size="10" />
 				</br>
-				<label>Fecha Scrap:</label>
-				<input type="month" id="iniFecBusc" name="iniFecBusc" min="2020-10" /> <label> al </label>
-				<input type="month" id="finFecBusc" name="finFecBusc" min="2020-10" />
+				<label>Periodo:</label> 
+				<select class="selectpicker" name="periodo" multiple data-live-search="true" title="Seleccione...">
+    				<option th:each="periodo : ${periodosList}" th:value="${periodo.catalogName}" th:text="${periodo.catalogName}"></option>
+				</select>
 				</br>
 				<button type="submit" id="submit" class="btn btn-primary btn-sm mt-3">Buscar</button>
 				</br>
 				<button id="exportExcel" class="btn btn-secondary mt-3">Exportar a Excel</button>
-				<button id="openPopup" class="btn btn-secondary mt-3">Procesar dormitorios</button>
+				<button id="openPopup" class="btn btn-secondary mt-3">Reporte funcional</button>
 				
 			</form>
 			</br>
-		    <table id="myTable" class="table table-bordered" style="width:100%">
-		        <thead class="table-dark">
-		            <tr>
-		            	<th>Estado</th>
-		                <th>Tipo</th>
-		                <th>Zona</th>
-		                <th>Segmento</th>
-		                <th>Descripción</th> 
-		                <th>Recámaras</th>
-		                <th>Baños</th>
-		                <th>Cajones</th>
-		                <th>Ficha precio</th>
-		                <th>Superficie cubierta (m2)</th>
-		                <th>Precio m2</th>
-		                <th>Fecha scrap</th>
-		                <th>Latitud</th>
-		                <th>Longitud</th>
-		            </tr>
-		        </thead>
-		        <tbody>
-		            <tr th:each="data : ${dataList}">
-		            	<td th:text="${data.locEstado}"></td>
-		                <td th:text="${data.locTipo}"></td>
-		                <td th:text="${data.zona}"></td>
-		                <td th:text="${data.segmento}"></td>
-		                <td style="text-align: center;">
-			                <button th:onclick="showDescription([[${data.descripcion}]]);">Detalle</button>
-			            </td>
-		                <td th:text="${data.dormitorios}"></td>
-		                <td th:text="${data.banos}"></td>
-		                <td th:text="${data.garages}"></td>
-		                <td th:text="'$' + ${#numbers.formatDecimal(data.fichaPrecio, 0, 'COMMA', 2, 'POINT')}"></td>
-		                <td th:text="${data.superficieCubierta}"></td>
-		                <td th:text="'$' + ${#numbers.formatDecimal(data.precioM2, 0, 'COMMA', 2, 'POINT')}"></td>
-		                <td th:text="${data.fechaScrap}" style="text-align: center;"></td>
-		                <td th:text="${data.lat}"></td>
-		                <td th:text="${data.lng}"></td>
-		            </tr>
-		        </tbody>
-		    </table>
-		    <ul class="pagination pagination-lg pager" id="myPager"></ul>
+			<!-- Contenedor de pestañas -->
+			<ul class="nav nav-tabs" id="myTab" role="tablist">
+			    <!-- Pestaña 1: Resumen de datos -->
+			    <li class="nav-item" role="presentation">
+			        <button class="nav-link" id="datos-tab" data-bs-toggle="tab" data-bs-target="#datos" type="button" role="tab" aria-controls="datos" aria-selected="false">
+			            Resumen de datos
+			        </button>
+			    </li>
+			    <!-- Pestaña 2: Detalle de datos -->
+			    <li class="nav-item" role="presentation">
+			        <button class="nav-link active" id="tabla-tab" data-bs-toggle="tab" data-bs-target="#tabla" type="button" role="tab" aria-controls="tabla" aria-selected="true">
+			            Detalle de datos
+			        </button>
+			    </li>
+			    <!-- Pestaña 2: Detalle de datos -->
+			    <li class="nav-item" role="presentation">
+			        <button class="nav-link" id="tabla-tab" data-bs-toggle="tab" data-bs-target="#saliente" type="button" role="tab" aria-controls="saliente" aria-selected="false">
+			            Salientes
+			        </button>
+			    </li>
+			</ul>
+		    <!-- Contenido de las pestañas -->
+			<div class="tab-content mt-3" id="myTabContent">
+			    <!-- Contenido de la pestaña Datos Fijos -->
+			    <div class="tab-pane fade" id="datos" role="tabpanel" aria-labelledby="datos-tab">
+			        <h3>Resumen de datos</h3>
+			        <label class="form-label" id="registrosTotales" >Registros totales consultados:</label>
+			        <ul id="seccionDetalleViviendaV">
+			            <h2>Vivienda Vertical</h2>
+			            <label class="form-label" id="registrosTotalesViviendaV" >Registros viviendo:</label>
+			            <table id="myTableResumenViviendaV" class="table table-bordered" style="width:100%">
+					        <thead class="table-dark">
+					            <tr>
+					            	<th>Estado</th>
+					                <th>Zona</th>
+					                <th>Segmento</th>
+					                <th>Total Registros</th> 
+					                <th>Precio Promedio</th>
+					                <th>Precio Mínimo</th>
+					                <th>Precio Máximo</th>
+					                <th>Precio Promedio m&sup2;</th>
+					                <th>Precio m&sup2; Mínimo</th>
+					                <th>Precio m&sup2; Máximo</th>
+					                <th>Promedio Superficie</th>
+					                <th>Recámaras</th>
+					                <th>Baños</th>
+					                <th>Estacionamientos</th>
+					            </tr>
+					        </thead>
+					        <tbody>
+					            <tr th:each="dataRVV : ${dataList}">
+					            	<td th:text="${dataRVV.locEstado}"></td>
+					                <td th:text="${dataRVV.zona}"></td>
+					                <td th:text="${dataRVV.segmento}"></td>
+					                <td th:text="${dataRVV.countRegistros}"></td>
+					                <td th:text="${dataRVV.avgFichaPrecio}"></td>
+					                <td th:text="${dataRVV.minFichaPrecio}"></td>
+					                <td th:text="${dataRVV.maxFichaPrecio}"></td>
+					                <td th:text="${dataRVV.avgPrecioM2}"></td>
+					                <td th:text="${dataRVV.minPrecioM2}"></td>
+					                <td th:text="${dataRVV.maxPrecioM2}"></td>
+					                <td th:text="${dataRVV.avgSuperficieCubierta}"></td>
+					                <td th:text="${dataRVV.avgDormitorios}"></td>
+					                <td th:text="${dataRVV.avgBanos}"></td>
+					                <td th:text="${dataRVV.avgGarages}"></td>
+					            </tr>
+					        </tbody>
+					    </table>
+			        </ul>
+			        <ul id="seccionDetalleViviendaH">
+			            <h2>Vivienda Horizontal</h2>
+			            <label class="form-label" id="registrosTotalesViviendaH" >Registros viviendo:</label>
+			            <table id="myTableResumenViviendaH" class="table table-bordered" style="width:100%">
+					        <thead class="table-dark">
+					            <tr>
+					            	<th>Estado</th>
+					                <th>Zona</th>
+					                <th>Segmento</th>
+					                <th>Total Registros</th> 
+					                <th>Precio Promedio</th>
+					                <th>Precio Mínimo</th>
+					                <th>Precio Máximo</th>
+					                <th>Precio Promedio m&sup2;</th>
+					                <th>Precio m&sup2; Mínimo</th>
+					                <th>Precio m&sup2; Máximo</th>
+					                <th>Promedio Superficie</th>
+					                <th>Recámaras</th>
+					                <th>Baños</th>
+					                <th>Estacionamientos</th>
+					            </tr>
+					        </thead>
+					        <tbody>
+					            <tr th:each="dataRVH : ${dataList}">
+					            	<td th:text="${dataRVH.locEstado}"></td>
+					                <td th:text="${dataRVH.zona}"></td>
+					                <td th:text="${dataRVH.segmento}"></td>
+					                <td th:text="${dataRVH.countRegistros}"></td>
+					                <td th:text="${dataRVH.avgFichaPrecio}"></td>
+					                <td th:text="${dataRVH.minFichaPrecio}"></td>
+					                <td th:text="${dataRVH.maxFichaPrecio}"></td>
+					                <td th:text="${dataRVH.avgPrecioM2}"></td>
+					                <td th:text="${dataRVH.minPrecioM2}"></td>
+					                <td th:text="${dataRVH.maxPrecioM2}"></td>
+					                <td th:text="${dataRVH.avgSuperficieCubierta}"></td>
+					                <td th:text="${dataRVH.avgDormitorios}"></td>
+					                <td th:text="${dataRVH.avgBanos}"></td>
+					                <td th:text="${dataRVH.avgGarages}"></td>
+					            </tr>
+					        </tbody>
+					    </table>
+			        </ul>
+			        <ul id="seccionDetalleLocales">
+			            <h2>Locales Comerciales</h2>
+			            <label class="form-label" id="registrosTotalesLocales" >Registros locales:</label>
+			            <table id="myTableResumenLocales" class="table table-bordered" style="width:100%">
+					        <thead class="table-dark">
+					            <tr>
+					            	<th>Estado</th>
+					                <th>Zona</th>
+					                <th>Segmento</th>
+					                <th>Total Registros</th> 
+					                <th>Precio Promedio</th>
+					                <th>Precio Mínimo</th>
+					                <th>Precio Máximo</th>
+					                <th>Precio Promedio m&sup2;</th>
+					                <th>Precio m&sup2; Mínimo</th>
+					                <th>Precio m&sup2; Máximo</th>
+					                <th>Promedio Superficie</th>
+					                <th>Baños</th>
+					            </tr>
+					        </thead>
+					        <tbody>
+					            <tr th:each="dataRL : ${dataList}">
+					            	<td th:text="${dataRL.locEstado}"></td>
+					                <td th:text="${dataRL.zona}"></td>
+					                <td th:text="${dataRL.segmento}"></td>
+					                <td th:text="${dataRL.countRegistros}"></td>
+					                <td th:text="${dataRL.avgFichaPrecio}"></td>
+					                <td th:text="${dataRL.minFichaPrecio}"></td>
+					                <td th:text="${dataRL.maxFichaPrecio}"></td>
+					                <td th:text="${dataRL.avgPrecioM2}"></td>
+					                <td th:text="${dataRL.minPrecioM2}"></td>
+					                <td th:text="${dataRL.maxPrecioM2}"></td>
+					                <td th:text="${dataRL.avgSuperficieCubierta}"></td>
+					                <td th:text="${dataRL.avgBanos}"></td>
+					            </tr>
+					        </tbody>
+					    </table>
+			        </ul>
+			        <ul id="seccionDetalleOficinas">
+			            <h2>Oficinas</h2>
+			            <label class="form-label" id="registrosTotalesOficinas" >Registros oficinas:</label>
+			            <table id="myTableResumenOficinas" class="table table-bordered" style="width:100%">
+					        <thead class="table-dark">
+					            <tr>
+					            	<th>Estado</th>
+					                <th>Zona</th>
+					                <th>Segmento</th>
+					                <th>Total Registros</th> 
+					                <th>Precio Promedio</th>
+					                <th>Precio Mínimo</th>
+					                <th>Precio Máximo</th>
+					                <th>Precio Promedio m&sup2;</th>
+					                <th>Precio m&sup2; Mínimo</th>
+					                <th>Precio m&sup2; Máximo</th>
+					                <th>Promedio Superficie</th>
+					                <th>Baños</th>
+					            </tr>
+					        </thead>
+					        <tbody>
+					            <tr th:each="dataRO : ${dataList}">
+					            	<td th:text="${dataRO.locEstado}"></td>
+					                <td th:text="${dataRO.zona}"></td>
+					                <td th:text="${dataRO.segmento}"></td>
+					                <td th:text="${dataRO.countRegistros}"></td>
+					                <td th:text="${dataRO.avgFichaPrecio}"></td>
+					                <td th:text="${dataRO.minFichaPrecio}"></td>
+					                <td th:text="${dataRO.maxFichaPrecio}"></td>
+					                <td th:text="${dataRO.avgPrecioM2}"></td>
+					                <td th:text="${dataRO.minPrecioM2}"></td>
+					                <td th:text="${dataRO.maxPrecioM2}"></td>
+					                <td th:text="${dataRO.avgSuperficieCubierta}"></td>
+					                <td th:text="${dataRO.avgBanos}"></td>
+					            </tr>
+					        </tbody>
+					    </table>
+			        </ul>
+			        <ul id="seccionDetalleBodegas">
+			            <h2>Bodega</h2>
+			            <label class="form-label" id="registrosTotalesBodegas" >Registros bodegas:</label>
+			            <table id="myTableResumenBodegas" class="table table-bordered" style="width:100%">
+					        <thead class="table-dark">
+					            <tr>
+					            	<th>Estado</th>
+					                <th>Zona</th>
+					                <th>Segmento</th>
+					                <th>Total Registros</th> 
+					                <th>Precio Promedio</th>
+					                <th>Precio Mínimo</th>
+					                <th>Precio Máximo</th>
+					                <th>Precio Promedio m&sup2;</th>
+					                <th>Precio m&sup2; Mínimo</th>
+					                <th>Precio m&sup2; Máximo</th>
+					                <th>Promedio Superficie</th>
+					                <th>Baños</th>
+					            </tr>
+					        </thead>
+					        <tbody>
+					            <tr th:each="dataRB : ${dataList}">
+					            	<td th:text="${dataRB.locEstado}"></td>
+					                <td th:text="${dataRB.zona}"></td>
+					                <td th:text="${dataRB.segmento}"></td>
+					                <td th:text="${dataRB.countRegistros}"></td>
+					                <td th:text="${dataRB.avgFichaPrecio}"></td>
+					                <td th:text="${dataRB.minFichaPrecio}"></td>
+					                <td th:text="${dataRB.maxFichaPrecio}"></td>
+					                <td th:text="${dataRB.avgPrecioM2}"></td>
+					                <td th:text="${dataRB.minPrecioM2}"></td>
+					                <td th:text="${dataRB.maxPrecioM2}"></td>
+					                <td th:text="${dataRB.avgSuperficieCubierta}"></td>
+					                <td th:text="${dataRB.avgBanos}"></td>
+					            </tr>
+					        </tbody>
+					    </table>
+			        </ul>
+			        <ul id="seccionDetalleSinAsignar">
+			            <h2>Sin Asignar</h2>
+			            <label class="form-label" id="registrosTotalesSinAsignar" >Registros sin asignar:</label>
+			            <table id="myTableResumenSinAsignar" class="table table-bordered" style="width:100%">
+					        <thead class="table-dark">
+					            <tr>
+					            	<th>Estado</th>
+					                <th>Zona</th>
+					                <th>Segmento</th>
+					                <th>Total Registros</th> 
+					                <th>Precio Promedio</th>
+					                <th>Precio Mínimo</th>
+					                <th>Precio Máximo</th>
+					                <th>Precio Promedio m&sup2;</th>
+					                <th>Precio m&sup2; Mínimo</th>
+					                <th>Precio m&sup2; Máximo</th>
+					                <th>Promedio Superficie</th>
+					                <th>Baños</th>
+					            </tr>
+					        </thead>
+					        <tbody>
+					            <tr th:each="dataRS : ${dataList}">
+					            	<td th:text="${dataRS.locEstado}"></td>
+					                <td th:text="${dataRS.zona}"></td>
+					                <td th:text="${dataRS.segmento}"></td>
+					                <td th:text="${dataRS.countRegistros}"></td>
+					                <td th:text="${dataRS.avgFichaPrecio}"></td>
+					                <td th:text="${dataRS.minFichaPrecio}"></td>
+					                <td th:text="${dataRS.maxFichaPrecio}"></td>
+					                <td th:text="${dataRS.avgPrecioM2}"></td>
+					                <td th:text="${dataRS.minPrecioM2}"></td>
+					                <td th:text="${dataRS.maxPrecioM2}"></td>
+					                <td th:text="${dataRS.avgSuperficieCubierta}"></td>
+					                <td th:text="${dataRS.avgBanos}"></td>
+					            </tr>
+					        </tbody>
+					    </table>
+			        </ul>
+			    </div>
+			    <!-- Contenido de la pestaña Tabla -->
+			    <div class="tab-pane fade show active" id="tabla" role="tabpanel" aria-labelledby="tabla-tab">
+			        <table id="myTable" class="table table-bordered" style="width:100%">
+				        <thead class="table-dark">
+				            <tr>
+				            	<th>Estado</th>
+				                <th>Tipo</th>
+				                <th>Zona</th>
+				                <th>Segmento</th>
+				                <th>Descripción</th> 
+				                <th>Recámaras</th>
+				                <th>Baños</th>
+				                <th>Cajones</th>
+				                <th>Ficha precio</th>
+				                <th>Superficie cubierta (m&sup2;)</th>
+				                <th>Precio m&sup2;</th>
+				                <th>Fecha scrap</th>
+				                <th>Latitud</th>
+				                <th>Longitud</th>
+				            </tr>
+				        </thead>
+				        <tbody>
+				            <tr th:each="data : ${dataList}">
+				            	<td th:text="${data.locEstado}"></td>
+				                <td th:text="${data.locTipo}"></td>
+				                <td th:text="${data.zona}"></td>
+				                <td th:text="${data.segmento}"></td>
+				                <td style="text-align: center;">
+					                <button th:onclick="showDescription([[${data.descripcion}]]);">Detalle</button>
+					            </td>
+				                <td th:text="${data.dormitorios}"></td>
+				                <td th:text="${data.banos}"></td>
+				                <td th:text="${data.garages}"></td>
+				                <td th:text="'$' + ${#numbers.formatDecimal(data.fichaPrecio, 0, 'COMMA', 2, 'POINT')}"></td>
+				                <td th:text="${data.superficieCubierta}"></td>
+				                <td th:text="'$' + ${#numbers.formatDecimal(data.precioM2, 0, 'COMMA', 2, 'POINT')}"></td>
+				                <td th:text="${data.fechaScrap}" style="text-align: center;"></td>
+				                <td th:text="${data.lat}"></td>
+				                <td th:text="${data.lng}"></td>
+				            </tr>
+				        </tbody>
+				    </table>
+				    <ul class="pagination pagination-lg pager" id="myPager"></ul>
+			    </div>
+			    <!-- Contenido de la pestaña Tabla Saliente -->
+			    <div class="tab-pane fade" id="saliente" role="tabpanel" aria-labelledby="datos-tab">
+			        <table id="myTableSaliente" class="table table-bordered" style="width:100%">
+				        <thead class="table-dark">
+				            <tr>
+				            	<th>Estado</th>
+				                <th>Tipo</th>
+				                <th>Zona</th>
+				                <th>Segmento</th>
+				                <th>Descripción</th> 
+				                <th>Recámaras</th>
+				                <th>Baños</th>
+				                <th>Cajones</th>
+				                <th>Ficha precio</th>
+				                <th>Superficie cubierta (m&sup2;)</th>
+				                <th>Precio m&sup2;</th>
+				                <th>Fecha scrap</th>
+				                <th>Latitud</th>
+				                <th>Longitud</th>
+				            </tr>
+				        </thead>
+				        <tbody>
+				            <tr th:each="dataS : ${dataListSaliente}">
+				            	<td th:text="${dataS.locEstado}"></td>
+				                <td th:text="${dataS.locTipo}"></td>
+				                <td th:text="${dataS.zona}"></td>
+				                <td th:text="${dataS.segmento}"></td>
+				                <td style="text-align: center;">
+					                <button th:onclick="showDescription([[${dataS.descripcion}]]);">Detalle</button>
+					            </td>
+				                <td th:text="${dataS.dormitorios}"></td>
+				                <td th:text="${dataS.banos}"></td>
+				                <td th:text="${dataS.garages}"></td>
+				                <td th:text="'$' + ${#numbers.formatDecimal(dataS.fichaPrecio, 0, 'COMMA', 2, 'POINT')}"></td>
+				                <td th:text="${dataS.superficieCubierta}"></td>
+				                <td th:text="'$' + ${#numbers.formatDecimal(dataS.precioM2, 0, 'COMMA', 2, 'POINT')}"></td>
+				                <td th:text="${dataS.fechaScrap}" style="text-align: center;"></td>
+				                <td th:text="${dataS.lat}"></td>
+				                <td th:text="${dataS.lng}"></td>
+				            </tr>
+				        </tbody>
+				    </table>
+				    <ul class="pagination pagination-lg pager" id="myPagerSaliente"></ul>
+			    </div>
+			</div>
 		</div>
+		
+		<!-- Modal mostrar detalle de registro -->
 		<div id="popupModal" class="modal" tabindex="-1" role="dialog">
 			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
@@ -119,33 +435,68 @@
 				</div>
 			</div>
 		</div>
+		
 		<!-- Modal procesar dormitorios -->
 		<div id="dormitoriosModal" class="modal" tabindex="-1" role="dialog">
-		    <div class="modal-dialog" role="document">
+		    <div class="modal-dialog modal-xl" role="document"> <!-- Cambiado a modal-xl para más espacio -->
 		        <div class="modal-content">
 		            <div class="modal-header">
-		                <h5 class="modal-title">Procesar dormitorios</h5>
+		                <h5 class="modal-title">Reporte funcional</h5>
 		                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		            </div>
 		            <div class="modal-body">
 		                <form id="configForm">
-		                    <div class="mb-3">
-		                        <label for="param1" class="form-label">Precio inicio:</label>
-		                        <input type="text" id="precioIniExcel" class="form-control" placeholder="Ingrese el Precio inicio" required>
-		                    </div>
-		                    <div class="mb-3">
-		                        <label for="param2" class="form-label">Precio fin:</label>
-		                        <input type="text" id="precioFinExcel" class="form-control" placeholder="Ingrese el Precio fin" required>
-		                    </div>
-		                    <div class="mb-3">
-		                        <label for="param3" class="form-label">Dividido cada:</label>
-		                        <input type="text" id="divisorExcel" class="form-control" placeholder="Ingrese el divisor" required>
-		                    </div>
-		                    <div class="mb-3">
-		                    	<input type="radio" id="precioFicha" name="precioXExcel" value="1" />
-						        <label for="contactChoice1">Precio Ficha</label>
-						        <input type="radio" id="precioM2" name="precioXExcel" value="0" />
-						        <label for="contactChoice2">Precio m2</label>
+		                    <div class="row">
+		                        <!-- Primera Columna -->
+		                        <div class="col-md-4">
+		                            <h6>Precio</h6>
+		                            <div class="mb-3">
+		                                <label for="precioIniExcel1" class="form-label">Precio inicio:</label>
+		                                <input type="text" id="precioIniExcel" class="form-control" placeholder="Ingrese el Precio inicio" required>
+		                            </div>
+		                            <div class="mb-3">
+		                                <label for="precioFinExcel1" class="form-label">Precio fin:</label>
+		                                <input type="text" id="precioFinExcel" class="form-control" placeholder="Ingrese el Precio fin" required>
+		                            </div>
+		                            <div class="mb-3">
+		                                <label for="divisorExcel1" class="form-label">Dividido cada:</label>
+		                                <input type="text" id="divisorPrecioExcel" class="form-control" placeholder="Ingrese el divisor" required>
+		                            </div>
+		                        </div>
+		
+		                        <!-- Segunda Columna -->
+		                        <div class="col-md-4">
+		                            <h6>Precio m&sup2;</h6>
+		                            <div class="mb-3">
+		                                <label for="precioM2IniExcel" class="form-label">Precio m&sup2; inicio:</label>
+		                                <input type="text" id="precioM2IniExcel" class="form-control" placeholder="Ingrese el Precio m&sup2; inicio" required>
+		                            </div>
+		                            <div class="mb-3">
+		                                <label for="precioM2FinExcel" class="form-label">Precio m&sup2; fin:</label>
+		                                <input type="text" id="precioM2FinExcel" class="form-control" placeholder="Ingrese el Precio m&sup2; fin" required>
+		                            </div>
+		                            <div class="mb-3">
+		                                <label for="divisorM2Excel" class="form-label">Dividido cada:</label>
+		                                <input type="text" id="divisorM2Excel" class="form-control" placeholder="Ingrese el divisor" required>
+		                            </div>
+		                        </div>
+		
+		                        <!-- Tercera Columna -->
+		                        <div class="col-md-4">
+		                            <h6>Superficie</h6>
+		                            <div class="mb-3">
+		                                <label for="superficieIniExcel" class="form-label">Superficie inicio:</label>
+		                                <input type="text" id="superficieIniExcel" class="form-control" placeholder="Ingrese la Superficie inicio" required>
+		                            </div>
+		                            <div class="mb-3">
+		                                <label for="superficieFinExcel" class="form-label">Superficie fin:</label>
+		                                <input type="text" id="superficieFinExcel" class="form-control" placeholder="Ingrese la Superficie fin" required>
+		                            </div>
+		                            <div class="mb-3">
+		                                <label for="divisorSuperficieExcel" class="form-label">Dividido cada:</label>
+		                                <input type="text" id="divisorSuperficieExcel" class="form-control" placeholder="Ingrese el divisor" required>
+		                            </div>
+		                        </div>
 		                    </div>
 		                </form>
 		            </div>
@@ -165,6 +516,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/es.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 		<script src="/js/ReTechJS.js"></script>
 	</body>
 </html>

@@ -1,6 +1,5 @@
 package com.cuatroSReal.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +10,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.cuatroSReal.model.CatalogDataModel;
 import com.cuatroSReal.model.FiltrosConsultaBigDataModel;
-import com.cuatroSReal.model.FiltrosConsultaDormitoriosModel;
+import com.cuatroSReal.model.FiltrosConsultaDatosRangosModel;
 import com.cuatroSReal.model.ReTechDataModel;
+import com.cuatroSReal.model.ResumenTipoModel;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,9 +22,6 @@ public class ReTechDataService {
 	private final RestTemplate restTemplate = new RestTemplate();
 
     public List<ReTechDataModel> getDataFromWebService(FiltrosConsultaBigDataModel filtros) {
-    	LocalDate fechaActual = LocalDate.now();
-		LocalDate fechaMesesMenos = fechaActual.minusMonths(3);
-		
     	String url = "http://localhost:8080/api/consultar?";
     	String filtroEstado = "";
     	String filtroTipo = "";
@@ -34,8 +31,7 @@ public class ReTechDataService {
     	String filtroPrecioFichaFin = "";
     	String filtroPrecioM2Ini = "";
     	String filtroPrecioM2Fin = "";
-    	String filtroFechaScrabIni = fechaMesesMenos.getYear() + "-" + String.format("%02d", fechaMesesMenos.getMonthValue());
-    	String filtroFechaScrabFin = fechaActual.getYear() + "-" + String.format("%02d", fechaActual.getMonthValue());
+    	String filtroPeriodoScrap = "";
     	
     	if(filtros != null){
     		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
@@ -62,11 +58,8 @@ public class ReTechDataService {
     		if(filtros.getFinPrecioM2Busc() != null && !filtros.getFinPrecioM2Busc().isEmpty()) {
     			filtroPrecioM2Fin = filtros.getFinPrecioM2Busc();
     		}
-    		if(filtros.getIniFecBusc() != null && !filtros.getIniFecBusc().isEmpty()) {
-    			filtroFechaScrabIni = filtros.getIniFecBusc();
-    		}
-    		if(filtros.getFinFecBusc() != null && !filtros.getFinFecBusc().isEmpty()) {
-    			filtroFechaScrabFin = filtros.getFinFecBusc();
+    		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
+    			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
     		}
     		
     	}
@@ -78,8 +71,63 @@ public class ReTechDataService {
     			+ "&precioFichaFin=" + filtroPrecioFichaFin
     			+ "&preciom2Ini=" + filtroPrecioM2Ini
     			+ "&preciom2Fin=" + filtroPrecioM2Fin
-    			+ "&fechaIni=" + filtroFechaScrabIni
-    			+ "&fechaFin=" + filtroFechaScrabFin;
+    			+ "&periodoScrap=" + filtroPeriodoScrap;
+        
+        ReTechDataModel[] response = restTemplate.getForObject(url, ReTechDataModel[].class);
+        return List.of(response); 
+    }
+    
+    public List<ReTechDataModel> getDataSalienteFromWebService(FiltrosConsultaBigDataModel filtros) {
+    	String url = "http://localhost:8080/api/consultarSaliente?";
+    	String filtroEstado = "";
+    	String filtroTipo = "";
+    	String filtroZona = "";
+    	String filtroSegmento = "";
+    	String filtroPrecioFichaIni = "";
+    	String filtroPrecioFichaFin = "";
+    	String filtroPrecioM2Ini = "";
+    	String filtroPrecioM2Fin = "";
+    	String filtroPeriodoScrap = "";
+    	
+    	if(filtros != null){
+    		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
+    			filtroEstado = String.join(",", filtros.getEstados() );
+    		}
+    		if(filtros.getTipos() != null && !filtros.getTipos().isEmpty()) {
+    			filtroTipo = String.join(",", filtros.getTipos() );
+    		}
+    		if(filtros.getZonas() != null && !filtros.getZonas().isEmpty()) {
+    			filtroZona = String.join(",", filtros.getZonas() );
+    		}
+    		if(filtros.getSegmentos() != null && !filtros.getSegmentos().isEmpty()) {
+    			filtroSegmento = String.join(",", filtros.getSegmentos() );
+    		}
+    		if(filtros.getIniPrecioFBusc() != null && !filtros.getIniPrecioFBusc().isEmpty()) {
+    			filtroPrecioFichaIni = filtros.getIniPrecioFBusc();
+    		}
+    		if(filtros.getFinPrecioFBusc() != null && !filtros.getFinPrecioFBusc().isEmpty()) {
+    			filtroPrecioFichaFin = filtros.getFinPrecioFBusc();
+    		}
+    		if(filtros.getIniPrecioM2Busc() != null && !filtros.getIniPrecioM2Busc().isEmpty()) {
+    			filtroPrecioM2Ini = filtros.getIniPrecioM2Busc();
+    		}
+    		if(filtros.getFinPrecioM2Busc() != null && !filtros.getFinPrecioM2Busc().isEmpty()) {
+    			filtroPrecioM2Fin = filtros.getFinPrecioM2Busc();
+    		}
+    		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
+    			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
+    		}
+    		
+    	}
+    	url += "estado=" + filtroEstado
+    			+ "&tipo=" + filtroTipo
+    			+ "&zona=" + filtroZona
+    			+ "&segmento=" + filtroSegmento
+    			+ "&precioFichaIni=" + filtroPrecioFichaIni
+    			+ "&precioFichaFin=" + filtroPrecioFichaFin
+    			+ "&preciom2Ini=" + filtroPrecioM2Ini
+    			+ "&preciom2Fin=" + filtroPrecioM2Fin
+    			+ "&periodoScrap=" + filtroPeriodoScrap;
         
         ReTechDataModel[] response = restTemplate.getForObject(url, ReTechDataModel[].class);
         return List.of(response); 
@@ -97,8 +145,13 @@ public class ReTechDataService {
         return List.of(response); // Convierte el array en una lista
     }
     
-    public List<CatalogDataModel> getCatalogZona() {
-        String url = "http://localhost:8080/api/getZona";
+    public List<CatalogDataModel> getCatalogZona(List<String> estados) {
+    	String filtroEstado = "";
+    	
+    	if(estados != null){
+    		filtroEstado = String.join(",", estados );
+    	}
+        String url = "http://localhost:8080/api/getZona?estado=" + filtroEstado;
         CatalogDataModel[] response = restTemplate.getForObject(url, CatalogDataModel[].class);
         return List.of(response);
     }
@@ -109,18 +162,26 @@ public class ReTechDataService {
         return List.of(response);
     }
     
-    public ResponseEntity<Object> getDormitoriosPrecio(FiltrosConsultaDormitoriosModel filtros) {
-    	String url = "http://localhost:8080/api/getDormitoriosRango?";
+    public List<CatalogDataModel> getCatalogPeriodo() {
+        String url = "http://localhost:8080/api/getPeriodo";
+        CatalogDataModel[] response = restTemplate.getForObject(url, CatalogDataModel[].class);
+        return List.of(response);
+    }
+    
+    public ResponseEntity<Object> getDatosRangos(FiltrosConsultaDatosRangosModel filtros, int datoBusqueda) {
+    	String url = "";
+    	if(datoBusqueda == 1)
+    		url = "http://localhost:8080/api/getDormitoriosRangos?";
+    	if(datoBusqueda == 2)
+    		url = "http://localhost:8080/api/getBaniosRangos?";
+    	
     	String filtroEstado = "";
     	String filtroTipo = "";
     	String filtroZona = "";
     	String filtroSegmento = "";
-    	String filtroPrecioFichaIni = "";
-    	String filtroPrecioFichaFin = "";
-    	String filtroPrecioM2Ini = "";
-    	String filtroPrecioM2Fin = "";
-    	String filtroFechaScrabIni = "";
-    	String filtroFechaScrabFin = "";
+    	String filtroIniBusc = "";
+    	String filtroFinBusc = "";
+    	String filtroPeriodoScrap = "";
     	String filtroRangosPrecio = "";
     	String filtroIndicadorMonto = "";
     	
@@ -137,23 +198,14 @@ public class ReTechDataService {
     		if(filtros.getSegmentos() != null && !filtros.getSegmentos().isEmpty()) {
     			filtroSegmento = String.join(",", filtros.getSegmentos() );
     		}
-    		if(filtros.getIniPrecioFBusc() != null && !filtros.getIniPrecioFBusc().isEmpty()) {
-    			filtroPrecioFichaIni = filtros.getIniPrecioFBusc();
+    		if(filtros.getIniBusc() != null && !filtros.getIniBusc().isEmpty()) {
+    			filtroIniBusc = filtros.getIniBusc();
     		}
-    		if(filtros.getFinPrecioFBusc() != null && !filtros.getFinPrecioFBusc().isEmpty()) {
-    			filtroPrecioFichaFin = filtros.getFinPrecioFBusc();
+    		if(filtros.getFinBusc() != null && !filtros.getFinBusc().isEmpty()) {
+    			filtroFinBusc = filtros.getFinBusc();
     		}
-    		if(filtros.getIniPrecioM2Busc() != null && !filtros.getIniPrecioM2Busc().isEmpty()) {
-    			filtroPrecioM2Ini = filtros.getIniPrecioM2Busc();
-    		}
-    		if(filtros.getFinPrecioM2Busc() != null && !filtros.getFinPrecioM2Busc().isEmpty()) {
-    			filtroPrecioM2Fin = filtros.getFinPrecioM2Busc();
-    		}
-    		if(filtros.getIniFecBusc() != null && !filtros.getIniFecBusc().isEmpty()) {
-    			filtroFechaScrabIni = filtros.getIniFecBusc();
-    		}
-    		if(filtros.getFinFecBusc() != null && !filtros.getFinFecBusc().isEmpty()) {
-    			filtroFechaScrabFin = filtros.getFinFecBusc();
+    		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
+    			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
     		}
     		if(filtros.getRangosPrecio() != null && !filtros.getRangosPrecio().isEmpty()) {
     			filtroRangosPrecio = filtros.getRangosPrecio();
@@ -166,12 +218,9 @@ public class ReTechDataService {
     			+ "&tipo=" + filtroTipo
     			+ "&zona=" + filtroZona
     			+ "&segmento=" + filtroSegmento
-    			+ "&precioFichaIni=" + filtroPrecioFichaIni
-    			+ "&precioFichaFin=" + filtroPrecioFichaFin
-    			+ "&preciom2Ini=" + filtroPrecioM2Ini
-    			+ "&preciom2Fin=" + filtroPrecioM2Fin
-    			+ "&fechaIni=" + filtroFechaScrabIni
-    			+ "&fechaFin=" + filtroFechaScrabFin
+    			+ "&iniBusc=" + filtroIniBusc
+    			+ "&finBusc=" + filtroFinBusc
+    			+ "&periodoScrap=" + filtroPeriodoScrap
     			+ "&rangosPrecio=" + filtroRangosPrecio
     			+ "&indicadorMonto=" + filtroIndicadorMonto;
         
@@ -192,5 +241,61 @@ public class ReTechDataService {
         }
     }
     
+    public List<ResumenTipoModel> getResumenTipos(FiltrosConsultaBigDataModel filtros) {
+    	String url = "http://localhost:8080/api/consultarDetalleTipos?";
+    	
+    	String filtroEstado = "";
+    	String filtroTipo = "";
+    	String filtroZona = "";
+    	String filtroSegmento = "";
+    	String filtroPrecioFichaIni = "";
+    	String filtroPrecioFichaFin = "";
+    	String filtroPrecioM2Ini = "";
+    	String filtroPrecioM2Fin = "";
+    	String filtroPeriodoScrap = "";
+    	
+    	if(filtros != null){
+    		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
+    			filtroEstado = String.join(",", filtros.getEstados() );
+    		}
+    		if(filtros.getTipos() != null && !filtros.getTipos().isEmpty()) {
+    			filtroTipo = String.join(",", filtros.getTipos() );
+    		}
+    		if(filtros.getZonas() != null && !filtros.getZonas().isEmpty()) {
+    			filtroZona = String.join(",", filtros.getZonas() );
+    		}
+    		if(filtros.getSegmentos() != null && !filtros.getSegmentos().isEmpty()) {
+    			filtroSegmento = String.join(",", filtros.getSegmentos() );
+    		}
+    		if(filtros.getIniPrecioFBusc() != null && !filtros.getIniPrecioFBusc().isEmpty()) {
+    			filtroPrecioFichaIni = filtros.getIniPrecioFBusc();
+    		}
+    		if(filtros.getFinPrecioFBusc() != null && !filtros.getFinPrecioFBusc().isEmpty()) {
+    			filtroPrecioFichaFin = filtros.getFinPrecioFBusc();
+    		}
+    		if(filtros.getIniPrecioM2Busc() != null && !filtros.getIniPrecioM2Busc().isEmpty()) {
+    			filtroPrecioM2Ini = filtros.getIniPrecioM2Busc();
+    		}
+    		if(filtros.getFinPrecioM2Busc() != null && !filtros.getFinPrecioM2Busc().isEmpty()) {
+    			filtroPrecioM2Fin = filtros.getFinPrecioM2Busc();
+    		}
+    		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
+    			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
+    		}
+    		
+    	}
+    	url += "estado=" + filtroEstado
+    			+ "&tipo=" + filtroTipo
+    			+ "&zona=" + filtroZona
+    			+ "&segmento=" + filtroSegmento
+    			+ "&precioFichaIni=" + filtroPrecioFichaIni
+    			+ "&precioFichaFin=" + filtroPrecioFichaFin
+    			+ "&preciom2Ini=" + filtroPrecioM2Ini
+    			+ "&preciom2Fin=" + filtroPrecioM2Fin
+    			+ "&periodoScrap=" + filtroPeriodoScrap;
+        
+    	ResumenTipoModel[] response = restTemplate.getForObject(url, ResumenTipoModel[].class);
+        return List.of(response); 
+    }
     
 }

@@ -29,6 +29,7 @@ public class ReTechDataModel {
     private String webscrapId;
     @JsonProperty("CVEGEO")
     private String CVEGEO;
+    @JsonProperty("zona")
     private String zona;
     private Double precioM2;
     
