@@ -11,21 +11,8 @@ public class FiltrosConsultaBigDataModel {
     private String finPrecioFBusc;
     private String iniPrecioM2Busc;
     private String finPrecioM2Busc;
-    private String iniFecBusc;
-    private String finFecBusc;
+    private List<String> periodoScrap;
     
-	public String getFinFecBusc() {
-		return finFecBusc;
-	}
-	public void setFinFecBusc(String finFecBusc) {
-		this.finFecBusc = finFecBusc;
-	}
-	public String getIniFecBusc() {
-		return iniFecBusc;
-	}
-	public void setIniFecBusc(String iniFecBusc) {
-		this.iniFecBusc = iniFecBusc;
-	}
 	public String getFinPrecioM2Busc() {
 		return finPrecioM2Busc;
 	}
@@ -73,6 +60,12 @@ public class FiltrosConsultaBigDataModel {
 	}
 	public void setEstados(List<String> estados) {
 		this.estados = estados;
+	}
+	public List<String> getPeriodoScrap() {
+		return periodoScrap;
+	}
+	public void setPeriodoScrap(List<String> periodoScrap) {
+		this.periodoScrap = periodoScrap;
 	}
 
 }

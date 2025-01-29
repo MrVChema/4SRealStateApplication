@@ -88,3 +88,21 @@ table tr:hover {
     color: white; /* Color del texto para la página activa */
     border-color: #007bff; /* Cambia el color del borde para la página activa */
 }
+
+.nav-tabs .nav-link {
+    color: #007bff;
+    border: 1px solid transparent;
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff #007bff #fff;
+}
+
+.tab-pane {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-top: none;
+}

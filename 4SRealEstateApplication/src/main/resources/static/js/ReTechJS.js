@@ -2,22 +2,6 @@ $(document).ready(function(){
     
   $('#myTable').pageMe({pagerSelector:'#myPager',showPrevNext:true,hidePageNumbers:false,perPage:250});
   
-  var hoy = new Date();
-  var hoyMesesAtras = new Date();
-  hoyMesesAtras.setMonth(hoyMesesAtras.getMonth() - 3);
-  
-  var mesActual = ("0" + (hoy.getMonth() + 1)).slice(-2);
-  var anioActual = hoy.getFullYear();
-  var mesPasado = ("0" + (hoyMesesAtras.getMonth() + 1)).slice(-2);
-
-  var inputIni = document.getElementById("iniFecBusc");
-  var inputFin = document.getElementById("finFecBusc");
-
-  inputIni.max = anioActual+"-"+mesActual;
-  inputFin.max = anioActual+"-"+mesActual;
-  
-  inputIni.value = hoyMesesAtras.getFullYear() + "-"+ mesPasado;
-  inputFin.value = anioActual+"-"+mesActual;
 });
 
 $.fn.pageMe = function(opts) {
@@ -150,158 +134,333 @@ document.addEventListener("DOMContentLoaded", function () {
     // Capturar el evento submit del formulario
     form.addEventListener("submit", function (event) {
         event.preventDefault(); // Evita que se recargue la página
-		
-		// Obtén los valores seleccionados de los selects
-		var selectedEstados = Array.from(document.querySelector("select[name='estados']").selectedOptions)
-		        .map(option => option.value) // Obtén los valores
-		        .filter(value => value.trim() !== ""); // Elimina valores vacíos
-		var selectedTipos = Array.from(document.querySelector("select[name='tipos']").selectedOptions)
-		        .map(option => option.value) // Obtén los valores
-		        .filter(value => value.trim() !== ""); // Elimina valores vacíos
-		var selectedZonas = Array.from(document.querySelector("select[name='zonas']").selectedOptions)
-		        .map(option => option.value) // Obtén los valores
-		        .filter(value => value.trim() !== ""); // Elimina valores vacíos
-		var selectedSegmentos = Array.from(document.querySelector("select[name='segmentos']").selectedOptions)
-		        .map(option => option.value) // Obtén los valores
-		        .filter(value => value.trim() !== ""); // Elimina valores vacíos
-		
-        // Captura los datos del formulario con FormData
-        const formData = new FormData(form);
 
-        // Convierte los datos a un objeto JSON
+        // Obtener valores seleccionados de los selects
+        const selectedEstados = getSelectedValues("estados");
+        const selectedTipos = getSelectedValues("tipos");
+        const selectedZonas = getSelectedValues("zonas");
+        const selectedSegmentos = getSelectedValues("segmentos");
+		const selectedPeriodo = getSelectedValues("periodo");
+
+        // Crear JSON con los datos del formulario
         const jsonData = {
             estados: selectedEstados,
             tipos: selectedTipos,
             zonas: selectedZonas,
             segmentos: selectedSegmentos,
-            iniPrecioFBusc: formData.get("iniPrecioFBusc"),
-            finPrecioFBusc: formData.get("finPrecioFBusc"),
-            iniPrecioM2Busc: formData.get("iniPrecioM2Busc"),
-            finPrecioM2Busc: formData.get("finPrecioM2Busc"),
-            iniFecBusc: formData.get("iniFecBusc"),
-            finFecBusc: formData.get("finFecBusc"),
+            iniPrecioFBusc: form["iniPrecioFBusc"].value,
+            finPrecioFBusc: form["finPrecioFBusc"].value,
+            iniPrecioM2Busc: form["iniPrecioM2Busc"].value,
+            finPrecioM2Busc: form["finPrecioM2Busc"].value,
+			periodoScrap: selectedPeriodo,
         };
 
-        // Llamar al webservice usando fetch
-        fetch("/api/consulta", {
+        // Llamadas a diferentes webservices
+        fetchAndUpdateTable("/api/consulta", jsonData, "#myTable tbody", "registrosTotales", processGeneralTableData);
+		fetchAndUpdateTable("/api/consultaSaliente", jsonData, "#myTableSaliente tbody", "registrosSalienteTotales", processGeneralTableData);
+        fetchAndUpdateTable("/api/consultarDetalleViviendaV", jsonData, "#myTableResumenViviendaV tbody", "registrosTotalesViviendaV", processResumenTableDataVivienda);
+        fetchAndUpdateTable("/api/consultarDetalleViviendaH", jsonData, "#myTableResumenViviendaH tbody", "registrosTotalesViviendaH", processResumenTableDataVivienda);
+        fetchAndUpdateTable("/api/consultarDetalleLocales", jsonData, "#myTableResumenLocales tbody", "registrosTotalesLocales", processResumenTableData);
+        fetchAndUpdateTable("/api/consultarDetalleOficinas", jsonData, "#myTableResumenOficinas tbody", "registrosTotalesOficinas", processResumenTableData);
+        fetchAndUpdateTable("/api/consultarDetalleBodegas", jsonData, "#myTableResumenBodegas tbody", "registrosTotalesBodegas", processResumenTableData);
+        fetchAndUpdateTable("/api/consultarDetalleSinAsignar", jsonData, "#myTableResumenSinAsignar tbody", "registrosTotalesSinAsignar", processResumenTableData);
+    });
+
+    // Función para obtener valores seleccionados de un select
+    function getSelectedValues(selectName) {
+        return Array.from(document.querySelector(`select[name='${selectName}']`).selectedOptions)
+            .map(option => option.value)
+            .filter(value => value.trim() !== "");
+    }
+
+    // Función para hacer fetch y actualizar tablas
+    function fetchAndUpdateTable(url, jsonData, tableBodySelector, registrosLabelId, processRowFn) {
+        fetch(url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(jsonData), // Convierte los datos a JSON
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jsonData),
         })
-            .then((response) => response.json()) // Procesar la respuesta como JSON
+            .then((response) => response.json())
             .then((data) => {
-                console.log("Datos recibidos:", data); // Para depuración
-                actualizarTabla(data); // Llamar a la función para actualizar la tabla
+                if (!Array.isArray(data)) {
+                    console.error(`Respuesta inválida del servidor para ${url}:`, data);
+                    return;
+                }
+                updateTable(tableBodySelector, registrosLabelId, data, processRowFn);
             })
             .catch((error) => {
-                console.error("Error al llamar al webservice:", error);
+                console.error(`Error al llamar al webservice ${url}:`, error);
             });
-	});
+		if(url == '/api/consulta'){
+			// Reiniciar el paginador después de actualizar la tabla
+			$('#myPager').empty(); // Limpia el paginador existente
+			$('#myTable').pageMe({ pagerSelector: '#myPager', showPrevNext: true, hidePageNumbers: false, perPage: 250 });
+		}
+		
+		if(url == '/api/consultaSaliente'){
+			// Reiniciar el paginador después de actualizar la tabla
+			$('#myPagerSaliente').empty(); // Limpia el paginador existente
+			$('#myTableSaliente').pageMe({ pagerSelector: '#myPagerSaliente', showPrevNext: true, hidePageNumbers: false, perPage: 250 });
+		}
+    }
 
-    // Función para actualizar la tabla con los datos recibidos
-    function actualizarTabla(data) {
-        const tableBody = document.querySelector("#myTable tbody");
+    // Función genérica para actualizar una tabla
+    function updateTable(tableBodySelector, registrosLabelId, data, processRowFn) {
+        const tableBody = document.querySelector(tableBodySelector);
         tableBody.innerHTML = ""; // Limpia el contenido actual de la tabla
 
-        // Iterar sobre los datos y agregar filas a la tabla
+        let totalRegistros = 0;
+
         data.forEach((row) => {
             const tr = document.createElement("tr");
-            tr.innerHTML = `
-				<td>${row.locEstado || ""}</td>
-	            <td>${row.locTipo || ""}</td>
-	            <td>${row.zona || ""}</td>
-	            <td>${row.segmento || ""}</td>
-	            <td style="text-align: center;">
-	                <button onclick="showDescription('${row.descripcion || ""}');">Detalle</button>
-	            </td>
-	            <td>${row.dormitorios || ""}</td>
-	            <td>${row.banos || ""}</td>
-	            <td>${row.garages || ""}</td>
-	            <td>$${formatCurrency(row.fichaPrecio)}</td>
-	            <td>${row.superficieCubierta || ""}</td>
-	            <td>$${formatCurrency(row.precioM2)}</td>
-	            <td style="text-align: center;">${row.fechaScrap || ""}</td>
-	            <td>${row.lat || ""}</td>
-	            <td>${row.lng || ""}</td>
-            `;
+            tr.innerHTML = processRowFn(row); // Procesar la fila con la función proporcionada
             tableBody.appendChild(tr);
+            totalRegistros += parseInt(row.countRegistros || 0, 10); // Sumar registros
         });
-		
-		// Reiniciar el paginador después de actualizar la tabla
-		$('#myPager').empty(); // Limpia el paginador existente
-		$('#myTable').pageMe({ pagerSelector: '#myPager', showPrevNext: true, hidePageNumbers: false, perPage: 250 });
+
+        // Actualizar el contador de registros
+		if(registrosLabelId == 'registrosTotales'){
+			document.getElementById(registrosLabelId).innerHTML = `Registros totales consultados: ${data.length}`;
+		}else
+        	document.getElementById(registrosLabelId).innerHTML = `Registros totales: ${totalRegistros}`;
+
+        // Mostrar/ocultar tabla según los registros
+        const tableSection = tableBody.closest("ul");
+        tableSection.style.display = totalRegistros > 0 ? "block" : "none";
+    }
+
+    // Función para procesar datos de la tabla general
+    function processGeneralTableData(row) {
+        return `
+            <td>${row.locEstado || ""}</td>
+            <td>${row.locTipo || ""}</td>
+            <td>${row.zona || ""}</td>
+            <td>${row.segmento || ""}</td>
+            <td style="text-align: center;">
+                <button onclick="showDescription('${row.descripcion || ""}');">Detalle</button>
+            </td>
+            <td>${row.dormitorios || ""}</td>
+            <td>${row.banos || ""}</td>
+            <td>${row.garages || ""}</td>
+            <td>$${formatCurrency(row.fichaPrecio)}</td>
+            <td>${row.superficieCubierta || ""}</td>
+            <td>$${formatCurrency(row.precioM2)}</td>
+            <td style="text-align: center;">${row.fechaScrap || ""}</td>
+            <td>${row.lat || ""}</td>
+            <td>${row.lng || ""}</td>
+        `;
+    }
+
+    // Función para procesar datos de las tablas resumen
+    function processResumenTableDataVivienda(row) {
+        return `
+            <td>${row.locEstado || ""}</td>
+            <td>${row.zona || ""}</td>
+            <td>${row.segmento || ""}</td>
+            <td>${row.countRegistros || ""}</td>
+            <td>$${formatCurrency(row.avgFichaPrecio) || ""}</td>
+            <td>$${formatCurrency(row.minFichaPrecio) || ""}</td>
+            <td>$${formatCurrency(row.maxFichaPrecio) || ""}</td>
+            <td>$${formatCurrency(row.avgPrecioM2) || ""}</td>
+            <td>$${formatCurrency(row.minPrecioM2) || ""}</td>
+            <td>$${formatCurrency(row.maxPrecioM2) || ""}</td>
+            <td>${row.avgSuperficieCubierta || ""}</td>
+            <td>${row.avgDormitorios || ""}</td>
+            <td>${row.avgBanos || ""}</td>
+            <td>${row.avgGarages || ""}</td>
+        `;
     }
 	
-	// Función para formatear los precios en estilo de moneda
-	function formatCurrency(value) {
-	    if (value == null) return ""; // Si el valor es nulo o indefinido, retorna vacío
-	    return new Intl.NumberFormat("es-MX", {
-	        minimumFractionDigits: 2,
-	        maximumFractionDigits: 2,
-	    }).format(value);
-	}
+	// Función para procesar datos de las tablas resumen
+	    function processResumenTableData(row) {
+	        return `
+	            <td>${row.locEstado || ""}</td>
+	            <td>${row.zona || ""}</td>
+	            <td>${row.segmento || ""}</td>
+	            <td>${row.countRegistros || ""}</td>
+	            <td>$${formatCurrency(row.avgFichaPrecio) || ""}</td>
+	            <td>$${formatCurrency(row.minFichaPrecio) || ""}</td>
+	            <td>$${formatCurrency(row.maxFichaPrecio) || ""}</td>
+	            <td>$${formatCurrency(row.avgPrecioM2) || ""}</td>
+	            <td>$${formatCurrency(row.minPrecioM2) || ""}</td>
+	            <td>$${formatCurrency(row.maxPrecioM2) || ""}</td>
+	            <td>${row.avgSuperficieCubierta || ""}</td>
+	            <td>${row.avgBanos || ""}</td>
+	        `;
+	    }
+
+    // Función para formatear los precios en estilo de moneda
+    function formatCurrency(value) {
+        if (value == null) return "";
+        return new Intl.NumberFormat("es-MX", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
+    }
 });
 
 document.getElementById("exportExcel").addEventListener("click", function () {
-    exportTableToExcel("myTable", "DatosExportados");
+    //exportTableToExcel("myTable", "DatosExportados");
+	const tables = [
+	        { tableID: "myTable", sheetName: "Datos Generales" },
+	        { tableID: "myTableResumenViviendaV", sheetName: "Resumen Vivienda Vertical" },
+			{ tableID: "myTableResumenViviendaH", sheetName: "Resumen Vivienda Horizontal" },
+	        { tableID: "myTableResumenLocales", sheetName: "Resumen Locales" },
+	        { tableID: "myTableResumenOficinas", sheetName: "Resumen Oficinas" },
+	        { tableID: "myTableResumenBodegas", sheetName: "Resumen Bodegas" },
+			{ tableID: "myTableResumenSinAsignar", sheetName: "Resumen Sin Asignar" },
+	    ];
+
+	exportTableToExcel(tables, "DatosExportados");
+	exportTableToKMZ("myTable", "CoordenadasExportadas");
 });
 
-function exportTableToExcel(tableID, fileName) {
+function exportTableToExcel(tables, fileName) {
+	// Crea un nuevo libro de trabajo
+    const workbook = XLSX.utils.book_new();
+
+    // Itera sobre las tablas y agrega cada una como una hoja en el workbook
+    tables.forEach(({ tableID, sheetName }) => {
+        const table = document.getElementById(tableID); // Obtén la tabla por ID
+        const rows = Array.from(table.rows); // Convierte las filas de la tabla en un array
+
+        // Convierte las filas a datos para Excel
+        const data = rows.map(row => {
+            return Array.from(row.cells).map(cell => {
+                // Verifica si la celda contiene un botón con datos adicionales
+                const button = cell.querySelector("button");
+                if (button) {
+                    // Si hay un botón, toma el atributo o texto asociado al modal
+                    return button.getAttribute("onclick").match(/'([^']+)'/)[1] || "";
+                }
+                return cell.innerText.trim(); // En otros casos, toma el texto de la celda
+            });
+        });
+
+        // Crea una hoja de cálculo con los datos
+        const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+        // Agrega la hoja al libro de trabajo
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    });
+
+    // Genera y descarga el archivo Excel
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+}
+
+//Proceso para exportar a KMZ
+function exportTableToKMZ(tableID, fileName) {
     // Obtén la tabla
     const table = document.getElementById(tableID);
     const rows = Array.from(table.rows); // Convierte las filas de la tabla en un array
 
-    // Convierte las filas a datos para Excel
-	const data = rows.map(row => {
-        return Array.from(row.cells).map(cell => {
-            // Verifica si la celda contiene un botón con datos adicionales
-            const button = cell.querySelector("button");
-            if (button) {
-                // Si hay un botón, toma el atributo o texto asociado al modal
-                return button.getAttribute("onclick").match(/'([^']+)'/)[1] || "";
-            }
-            return cell.innerText.trim(); // En otros casos, toma el texto de la celda
-        });
+    // Filtra las filas que contienen datos
+    const data = rows.slice(1).map(row => {
+        const cells = row.cells;
+        return {
+            estado: cells[0]?.innerText.trim() || "",
+            tipo: cells[1]?.innerText.trim() || "",
+            zona: cells[2]?.innerText.trim() || "",
+			precio: cells[8]?.innerText.trim() || "",
+            lat: cells[12]?.innerText.trim() || "",
+            lng: cells[13]?.innerText.trim() || "",
+        };
     });
 
-    // Crea la hoja de cálculo con los datos
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    // Genera el contenido KML
+    const kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+		<kml xmlns="http://www.opengis.net/kml/2.2">
+		  <Document>
+		    <name>${fileName}</name>
+		    ${data
+		        .map(row => {
+		            if (row.lat && row.lng) {
+		                return `
+		      <Placemark>
+		        <name>${row.estado} - ${row.zona}</name>
+		        <description>${row.precio} | ${row.tipo}</description>
+		        <Point>
+		          <coordinates>${row.lng},${row.lat},0</coordinates>
+		        </Point>
+		      </Placemark>`;
+		            }
+		            return ""; // Ignora filas sin coordenadas
+		        })
+		        .join("\n")}
+		  </Document>
+		</kml>`;
 
-    // Crea un libro de trabajo y agrega la hoja de cálculo
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
+    // Crear archivo KMZ usando JSZip
+    const zip = new JSZip();
+    zip.file(`${fileName}.kml`, kmlContent); // Agrega el archivo KML al zip
 
-    // Genera y descarga el archivo Excel
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    // Generar el archivo KMZ (archivo zip con extensión KMZ)
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+        const kmzBlob = new Blob([content], { type: "application/vnd.google-earth.kmz" });
+        const url = URL.createObjectURL(kmzBlob);
+
+        // Descarga el archivo KMZ
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${fileName}.kmz`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
 }
 
 //Procedimiento para exportar dormitorios
 document.getElementById("startExport").addEventListener("click", async function () {
     const precioIniExcel = document.getElementById("precioIniExcel").value;
     const precioFinExcel = document.getElementById("precioFinExcel").value;
-	const divisorExcel = document.getElementById("divisorExcel").value;
-	const precioRazon = document.querySelector('input[name="precioXExcel"]:checked').value;
+	const divisorPrecioExcel = document.getElementById("divisorPrecioExcel").value;
+	var precioInd = 0;
 	
+	const precioM2IniExcel = document.getElementById("precioM2IniExcel").value;
+    const precioM2FinExcel = document.getElementById("precioM2FinExcel").value;
+	const divisorM2Excel = document.getElementById("divisorM2Excel").value;
+	var precioM2Ind = 0;
+	
+	const superficieIniExcel = document.getElementById("superficieIniExcel").value;
+    const superficieFinExcel = document.getElementById("superficieFinExcel").value;
+	const divisorSuperficieExcel = document.getElementById("divisorSuperficieExcel").value;
+	var superficieInd = 0;
+	
+	const date = new Date();
+	var dateExcel = formatDate(date);
 	
 	//Validaciones
-    if (!precioIniExcel || !precioFinExcel) {
-        alert("Por favor, complete ambos parámetros.");
-        return;
-    }
-	
-	//Si no hay ninguno lanzamos alerta
-    if(!document.querySelector('input[name="precioXExcel"]:checked')) {
-		alert('Por favor, seleccione un tipo de Precio.');
+	if (!precioIniExcel && !precioFinExcel && !precioM2IniExcel && !precioM2FinExcel && !superficieIniExcel && !superficieFinExcel){
+		alert("Por favor, complete algun formulario de los 3.");
 		return;
-  	}
+	}
 	
+	if (precioIniExcel || precioFinExcel || divisorPrecioExcel) {
+	    if (!precioIniExcel || !precioFinExcel || !divisorPrecioExcel) {
+	        alert("Por favor, complete los parámetros de Dormitorios/Baños x Precio.");
+	        return;
+	    }else
+			precioInd = 1;
+	}
+	
+	if (precioM2IniExcel || precioM2FinExcel || divisorM2Excel) {
+		if (!precioM2IniExcel || !precioM2FinExcel || !divisorM2Excel) {
+	        alert("Por favor, complete los parámetros de Dormitorios/Baños x Precio m\u00B2.");
+	        return;
+	    }else
+			precioM2Ind = 2;
+	}
+	
+	if (superficieIniExcel || superficieFinExcel || divisorSuperficieExcel) {
+		if (!superficieIniExcel || !superficieFinExcel || !divisorSuperficieExcel) {
+	        alert("Por favor, complete los parámetros de Dormitorios/Baños x Superficie.");
+	        return;
+	    }else
+			superficieInd = 3;
+	}
+		
 	// Obtén los valores seleccionados de los selects
 	var selectedEstados = Array.from(document.querySelector("select[name='estados']").selectedOptions)
-	        .map(option => option.value) // Obtén los valores
-	        .filter(value => value.trim() !== ""); // Elimina valores vacíos
-	var selectedTipos = Array.from(document.querySelector("select[name='tipos']").selectedOptions)
 	        .map(option => option.value) // Obtén los valores
 	        .filter(value => value.trim() !== ""); // Elimina valores vacíos
 	var selectedZonas = Array.from(document.querySelector("select[name='zonas']").selectedOptions)
@@ -310,85 +469,234 @@ document.getElementById("startExport").addEventListener("click", async function 
 	var selectedSegmentos = Array.from(document.querySelector("select[name='segmentos']").selectedOptions)
 	        .map(option => option.value) // Obtén los valores
 	        .filter(value => value.trim() !== ""); // Elimina valores vacíos
+	var selectedTipos = Array.from(document.querySelector("select[name='tipos']").selectedOptions)
+	        .map(option => option.value) // Obtén los valores
+	        .filter(value => value.trim() !== ""); // Elimina valores vacíos
+	var selectedPeriodo = Array.from(document.querySelector("select[name='periodo']").selectedOptions)
+	        .map(option => option.value) // Obtén los valores
+	        .filter(value => value.trim() !== ""); // Elimina valores vacíos
+					
+	var selectTipoVV = ['VV'];
+	var selectTipoVH = ['VH'];
+	
+	var checkVV = false;
+	var checkVH = false;
+	
+	if(selectedTipos.includes("VV")){
+		checkVV = true;
+	}
+	
+	if(selectedTipos.includes("VH")){
+		checkVH = true;
+	}
+	
+	if(!selectedTipos.includes("VV") && !selectedTipos.includes("VH")){
+		checkVV = true;
+		checkVH = true;
+	}
 			
 	// Convierte los datos a un objeto JSON
-	const jsonData = {
+	//Este procesamiento solo se aplica a VV y VH
+	const jsonDataPrecioVV = {
 	    estados: selectedEstados,
-	    tipos: selectedTipos,
+	    tipos: selectTipoVV,
 	    zonas: selectedZonas,
 	    segmentos: selectedSegmentos,
-	    iniPrecioFBusc: (precioRazon==1 ? precioIniExcel : ''),
-	    finPrecioFBusc: (precioRazon==1 ? precioFinExcel : ''),
-	    iniPrecioM2Busc: (precioRazon==0 ? precioIniExcel : ''),
-	    finPrecioM2Busc: (precioRazon==0 ? precioFinExcel : ''),
-	    iniFecBusc: document.getElementById("iniFecBusc").value,
-	    finFecBusc: document.getElementById("finFecBusc").value,
-		rangosPrecio: divisorExcel,
-		indicadorMonto: precioRazon,
+	    iniBusc: (precioIniExcel),
+	    finBusc: (precioFinExcel),
+		periodoScrap: selectedPeriodo,
+		rangosPrecio: divisorPrecioExcel,
+		indicadorMonto: precioInd,
 	};
 	
-	var dividosNombre = getNombresColumns(precioIniExcel, precioFinExcel, divisorExcel);
+	const jsonDataM2VV = {
+	    estados: selectedEstados,
+	    tipos: selectTipoVV,
+	    zonas: selectedZonas,
+	    segmentos: selectedSegmentos,
+	    iniBusc: (precioM2IniExcel),
+	    finBusc: (precioM2FinExcel),
+	    periodoScrap: selectedPeriodo,
+		rangosPrecio: divisorM2Excel,
+		indicadorMonto: precioM2Ind,
+	};
 	
-	// Llamar al webservice usando fetch
-	fetch("/api/getDormitoriosRango", {
-	    method: "POST",
-	    headers: {
-	        "Content-Type": "application/json",
-	    },
-	    body: JSON.stringify(jsonData), // Convierte los datos a JSON
-	})
-	    .then((response) => response.json()) // Procesar la respuesta como JSON
-	    .then((data) => {
-			// Iterar sobre las claves del objeto `data` y procesar los datos
-	        let formattedData = [];
-	        if (data && typeof data === "object") {
-	            formattedData = Object.keys(data).flatMap(key => {
-	                return data[key].map(row => {
-	                    // Construir dinámicamente las columnas de precios
-	                    const dynamicColumns = dividosNombre.map(monto => row[monto.toString()] || "0");
-	                    return [
-	                        row.loc_estado || key, // Usa la clave principal si no existe `loc_estado`
-	                        row.loc_zona || "-",   // Valor por defecto si falta
-	                        row.dormitorios_cantidad || "-",
-	                        ...dynamicColumns     // Agrega columnas dinámicas
-	                    ];
-	                });
-	            });
-	        } else {
-	            throw new Error("Formato inesperado en la respuesta del webservice");
-	        }
+	const jsonDataSuperficieVV = {
+	    estados: selectedEstados,
+	    tipos: selectTipoVV,
+	    zonas: selectedZonas,
+	    segmentos: selectedSegmentos,
+	    iniBusc: (superficieIniExcel),
+	    finBusc: (superficieFinExcel),
+	    periodoScrap: selectedPeriodo,
+		rangosPrecio: divisorSuperficieExcel,
+		indicadorMonto: superficieInd,
+	};
+	
+	const jsonDataPrecioVH = {
+	    estados: selectedEstados,
+	    tipos: selectTipoVH,
+	    zonas: selectedZonas,
+	    segmentos: selectedSegmentos,
+	    iniBusc: (precioIniExcel),
+	    finBusc: (precioFinExcel),
+	    periodoScrap: selectedPeriodo,
+		rangosPrecio: divisorPrecioExcel,
+		indicadorMonto: precioInd,
+	};
+	
+	const jsonDataM2VH = {
+	    estados: selectedEstados,
+	    tipos: selectTipoVH,
+	    zonas: selectedZonas,
+	    segmentos: selectedSegmentos,
+	    iniBusc: (precioM2IniExcel),
+	    finBusc: (precioM2FinExcel),
+	    periodoScrap: selectedPeriodo,
+		rangosPrecio: divisorM2Excel,
+		indicadorMonto: precioM2Ind,
+	};
+	
+	const jsonDataSuperficieVH = {
+	    estados: selectedEstados,
+	    tipos: selectTipoVH,
+	    zonas: selectedZonas,
+	    segmentos: selectedSegmentos,
+	    iniBusc: (superficieIniExcel),
+	    finBusc: (superficieFinExcel),
+	    periodoScrap: selectedPeriodo,
+		rangosPrecio: divisorSuperficieExcel,
+		indicadorMonto: superficieInd,
+	};
+	
+	var dividosNombrePrecio = getNombresColumns(precioIniExcel, precioFinExcel, divisorPrecioExcel);
+	var dividosNombreM2 = getNombresColumns(precioM2IniExcel, precioM2FinExcel, divisorM2Excel);
+	var dividosNombreSuperficie = getNombresColumns(superficieIniExcel, superficieFinExcel, divisorSuperficieExcel);
+	
+	// Crear el libro de Excel
+    const workbook = XLSX.utils.book_new();
 
-	        // Generar encabezados dinámicos
-	        const columnHeaders = [
-	            "Loc_Estado",
-	            "Loc_Zona",
-	            "Dormitorios_Cantidad",
-	            ...dividosNombre.map(monto => `${monto.toLocaleString()}`)
-	        ];
+    // Función para procesar cada web service
+    async function fetchAndFormatDataDormitorio(url, dividosNombre, jsonData, sheetName) {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jsonData),
+        });
 
-	        // Combinar encabezados y datos en una matriz final para el Excel
-	        const worksheetData = [
-	            columnHeaders,
-	            ...formattedData
-	        ];
+        if (!response.ok) throw new Error(`Error en el web service: ${url}`);
+        const data = await response.json();
 
-	        // Crear la hoja de cálculo
-	        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+        // Formatear los datos
+        let formattedData = [];
+        if (data && typeof data === "object") {
+            formattedData = Object.keys(data).flatMap((key) => {
+                return data[key].map((row) => {
+                    const dynamicColumns = dividosNombre.map((monto) => row[monto.toString()] || "0");
+                    return [
+                        row.loc_estado || key,
+                        row.zona || "-",
+                        row.dormitorios_cantidad || "-",
+                        ...dynamicColumns,
+                    ];
+                });
+            });
+        }
 
-	        // Crear un libro de trabajo y agregar la hoja
-	        const workbook = XLSX.utils.book_new();
-	        XLSX.utils.book_append_sheet(workbook, worksheet, "Dormitorios por rango");
+        // Encabezados dinámicos
+        const columnHeaders = [
+            "Loc_Estado",
+            "Zona",
+            "Dormitorios_Cantidad",
+            ...dividosNombre.map((monto) => `${monto.toLocaleString()}`),
+        ];
 
-	        // Generar y descargar el archivo Excel
-	        XLSX.writeFile(workbook, "DormitoriosRangoExportados.xlsx");
-	    })
-	    .catch((error) => {
-	        console.error("Error al llamar al webservice:", error);
-	    });
+        // Combinar encabezados y datos
+        const worksheetData = [columnHeaders, ...formattedData];
+
+        // Crear la hoja y agregarla al libro
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    }
+	
+	async function fetchAndFormatDataBanios(url, dividosNombre, jsonData, sheetName) {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jsonData),
+        });
+
+        if (!response.ok) throw new Error(`Error en el web service: ${url}`);
+        const data = await response.json();
+
+        // Formatear los datos
+        let formattedData = [];
+        if (data && typeof data === "object") {
+            formattedData = Object.keys(data).flatMap((key) => {
+                return data[key].map((row) => {
+                    const dynamicColumns = dividosNombre.map((monto) => row[monto.toString()] || "0");
+                    return [
+                        row.loc_estado || key,
+                        row.zona || "-",
+                        row.banos_cantidad || "-",
+                        ...dynamicColumns,
+                    ];
+                });
+            });
+        }
+
+        // Encabezados dinámicos
+        const columnHeaders = [
+            "Loc_Estado",
+            "Zona",
+            "Banos_Cantidad",
+            ...dividosNombre.map((monto) => `${monto.toLocaleString()}`),
+        ];
+
+        // Combinar encabezados y datos
+        const worksheetData = [columnHeaders, ...formattedData];
+
+        // Crear la hoja y agregarla al libro
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    }
+
+	try {
+	    // Llamadas condicionales basadas en `checkVV` y `checkVH`
+	    const promises = [];
+	
+	    if (checkVV) {
+	        promises.push(fetchAndFormatDataDormitorio("/api/getDormitoriosRangos", dividosNombrePrecio, jsonDataPrecioVV, "VV Dormitorios x Precio"));
+	        promises.push(fetchAndFormatDataDormitorio("/api/getDormitoriosRangos", dividosNombreM2, jsonDataM2VV, "VV Dormitorios x Precio m2"));
+	        promises.push(fetchAndFormatDataDormitorio("/api/getDormitoriosRangos", dividosNombreSuperficie, jsonDataSuperficieVV, "VV Dormitorios x Superficie"));
+			promises.push(fetchAndFormatDataBanios("/api/getBaniosRangos", dividosNombrePrecio, jsonDataPrecioVV, "VV Baños x Precio"));
+	        promises.push(fetchAndFormatDataBanios("/api/getBaniosRangos", dividosNombreM2, jsonDataM2VV, "VV Baños x Precio m2"));
+	        promises.push(fetchAndFormatDataBanios("/api/getBaniosRangos", dividosNombreSuperficie, jsonDataSuperficieVV, "VV Baños x Superficie"));
+	    }
+	
+	    if (checkVH) {
+	        promises.push(fetchAndFormatDataDormitorio("/api/getDormitoriosRangos", dividosNombrePrecio, jsonDataPrecioVH, "VH Dormitorios x Precio"));
+	        promises.push(fetchAndFormatDataDormitorio("/api/getDormitoriosRangos", dividosNombreM2, jsonDataM2VH, "VH Dormitorios x Precio m2"));
+	        promises.push(fetchAndFormatDataDormitorio("/api/getDormitoriosRangos", dividosNombreSuperficie, jsonDataSuperficieVH, "VH Dormitorios x Superficie"));
+			promises.push(fetchAndFormatDataBanios("/api/getBaniosRangos", dividosNombrePrecio, jsonDataPrecioVH, "VH Baños x Precio"));
+	        promises.push(fetchAndFormatDataBanios("/api/getBaniosRangos", dividosNombreM2, jsonDataM2VH, "VH Baños x Precio m2"));
+	        promises.push(fetchAndFormatDataBanios("/api/getBaniosRangos", dividosNombreSuperficie, jsonDataSuperficieVH, "VH Baños x Superficie"));
+	    }
+	
+	    // Esperar a que todas las llamadas se completen
+	    await Promise.all(promises);
 		
+		// Exportar el archivo Excel
+	    XLSX.writeFile(workbook, "ReporteFuncional_" + dateExcel + ".xlsx");
+	
+	} catch (error) {
+	    console.error("Error durante la exportación:", error);
+	    alert("Ocurrió un error durante la exportación.");
+	}
+	
+	// Ocultar el modal
 	const modal = bootstrap.Modal.getInstance(document.getElementById("dormitoriosModal"));
 	modal.hide();
-		
 });
 //FIN Procedimiento para exportar dormitorios
 
@@ -412,4 +720,73 @@ function getNombresColumns(monto1, monto2, divisor) {
 	}
 	
     return resultadosOrganizados;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const estadoSelect = document.querySelector("select[name='estados']");
+    const zonaSelect = document.querySelector("select[name='zonas']");
+
+    // Escuchar el cambio en el select de estados
+    estadoSelect.addEventListener("change", function () {
+        var selectedEstados = Array.from(document.querySelector("select[name='estados']").selectedOptions)
+				        .map(option => option.value) // Obtén los valores
+				        .filter(value => value.trim() !== ""); // Elimina valores vacíos
+
+        if (selectedEstados.length === 0) {
+            // Si no hay estados seleccionados, limpiar las opciones de zonas
+            zonaSelect.innerHTML = '<option value="" disabled>Seleccione...</option>';
+            $('.selectpicker').selectpicker("refresh"); // Refrescar selectpicker
+            return;
+        }
+		
+		// Llamar al webservice para obtener las zonas correspondientes
+		fetch("/api/getZonasPorEstados", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(selectedEstados), // Enviar el array como JSON plano
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al obtener zonas");
+                }
+                return response.json();
+            })
+            .then(zonas => {
+                // Validar que la respuesta sea un arreglo
+                if (!Array.isArray(zonas)) {
+                    throw new Error("Respuesta inválida del servidor: no es un arreglo");
+                }
+
+                // Construir las opciones del select de zonas
+                const opciones = zonas.map(zona =>
+                    `<option value="${zona.catalogName}">${zona.catalogName}</option>`
+                ).join("");
+
+                // Actualizar el contenido del select de zonas
+                zonaSelect.innerHTML = '<option value="" disabled>Seleccione...</option>' + opciones;
+
+                // Refrescar selectpicker
+                $('.selectpicker').selectpicker("refresh");
+            })
+            .catch(error => {
+                console.error("Error al obtener zonas:", error);
+                alert("Ocurrió un error al cargar las zonas.");
+            });
+    });
+});
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('_');
 }
