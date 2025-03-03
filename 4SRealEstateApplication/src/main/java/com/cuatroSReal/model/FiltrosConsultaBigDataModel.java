@@ -12,6 +12,9 @@ public class FiltrosConsultaBigDataModel {
     private String iniPrecioM2Busc;
     private String finPrecioM2Busc;
     private List<String> periodoScrap;
+    private String latBusc;
+    private String lngBusc;
+    private String kmBusc;
     
 	public String getFinPrecioM2Busc() {
 		return finPrecioM2Busc;
@@ -66,6 +69,24 @@ public class FiltrosConsultaBigDataModel {
 	}
 	public void setPeriodoScrap(List<String> periodoScrap) {
 		this.periodoScrap = periodoScrap;
+	}
+	public String getKmBusc() {
+		return kmBusc;
+	}
+	public void setKmBusc(String kmBusc) {
+		this.kmBusc = kmBusc;
+	}
+	public String getLngBusc() {
+		return lngBusc;
+	}
+	public void setLngBusc(String lngBusc) {
+		this.lngBusc = lngBusc;
+	}
+	public String getLatBusc() {
+		return latBusc;
+	}
+	public void setLatBusc(String latBusc) {
+		this.latBusc = latBusc;
 	}
 
 }

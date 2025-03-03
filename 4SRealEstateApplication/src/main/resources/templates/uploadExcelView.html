@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargar y Corregir Archivo Excel</title>
+</head>
+<body>
+    <h1>Cargar y Corregir Archivo Excel</h1>
+    
+    <h2>Procesar Archivo 1 (Normalización de Columnas N, P, R)</h2>
+    <form method="POST" action="/uploadExcel" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx" required />
+        <button type="submit">Subir y Corregir</button>
+    </form>
+    
+    <!-- Formulario para el segundo archivo -->
+    <h2>Procesar Archivo 2 (Generar INSERTs)</h2>
+    <form method="POST" action="/generateInserts" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx" required />
+        <button type="submit">Generar INSERTs</button>
+    </form>
+    
+    <p th:if="${message}" th:text="${message}"></p>
+</body>
+</html>

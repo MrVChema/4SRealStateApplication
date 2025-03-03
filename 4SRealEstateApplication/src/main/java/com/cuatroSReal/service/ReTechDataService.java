@@ -32,6 +32,9 @@ public class ReTechDataService {
     	String filtroPrecioM2Ini = "";
     	String filtroPrecioM2Fin = "";
     	String filtroPeriodoScrap = "";
+    	String filtroLat = "";
+    	String filtroLng = "";
+    	String filtroKms = "";
     	
     	if(filtros != null){
     		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
@@ -61,7 +64,15 @@ public class ReTechDataService {
     		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
     			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
     		}
-    		
+    		if(filtros.getLatBusc() != null && !filtros.getLatBusc().isEmpty()) {
+    			filtroLat = filtros.getLatBusc();
+    		}
+    		if(filtros.getLngBusc() != null && !filtros.getLngBusc().isEmpty()) {
+    			filtroLng = filtros.getLngBusc();
+    		}
+    		if(filtros.getKmBusc() != null && !filtros.getKmBusc().isEmpty()) {
+    			filtroKms = filtros.getKmBusc();
+    		}
     	}
     	url += "estado=" + filtroEstado
     			+ "&tipo=" + filtroTipo
@@ -71,7 +82,10 @@ public class ReTechDataService {
     			+ "&precioFichaFin=" + filtroPrecioFichaFin
     			+ "&preciom2Ini=" + filtroPrecioM2Ini
     			+ "&preciom2Fin=" + filtroPrecioM2Fin
-    			+ "&periodoScrap=" + filtroPeriodoScrap;
+    			+ "&periodoScrap=" + filtroPeriodoScrap
+    			+ "&latBusc=" + filtroLat
+    			+ "&lngBusc=" + filtroLng
+    			+ "&kmBusc=" + filtroKms;
         
         ReTechDataModel[] response = restTemplate.getForObject(url, ReTechDataModel[].class);
         return List.of(response); 
@@ -88,6 +102,9 @@ public class ReTechDataService {
     	String filtroPrecioM2Ini = "";
     	String filtroPrecioM2Fin = "";
     	String filtroPeriodoScrap = "";
+    	String filtroLat = "";
+    	String filtroLng = "";
+    	String filtroKms = "";
     	
     	if(filtros != null){
     		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
@@ -117,6 +134,15 @@ public class ReTechDataService {
     		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
     			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
     		}
+    		if(filtros.getLatBusc() != null && !filtros.getLatBusc().isEmpty()) {
+    			filtroLat = filtros.getLatBusc();
+    		}
+    		if(filtros.getLngBusc() != null && !filtros.getLngBusc().isEmpty()) {
+    			filtroLng = filtros.getLngBusc();
+    		}
+    		if(filtros.getKmBusc() != null && !filtros.getKmBusc().isEmpty()) {
+    			filtroKms = filtros.getKmBusc();
+    		}
     		
     	}
     	url += "estado=" + filtroEstado
@@ -127,7 +153,10 @@ public class ReTechDataService {
     			+ "&precioFichaFin=" + filtroPrecioFichaFin
     			+ "&preciom2Ini=" + filtroPrecioM2Ini
     			+ "&preciom2Fin=" + filtroPrecioM2Fin
-    			+ "&periodoScrap=" + filtroPeriodoScrap;
+    			+ "&periodoScrap=" + filtroPeriodoScrap
+    			+ "&latBusc=" + filtroLat
+    			+ "&lngBusc=" + filtroLng
+    			+ "&kmBusc=" + filtroKms;
         
         ReTechDataModel[] response = restTemplate.getForObject(url, ReTechDataModel[].class);
         return List.of(response); 
@@ -184,6 +213,9 @@ public class ReTechDataService {
     	String filtroPeriodoScrap = "";
     	String filtroRangosPrecio = "";
     	String filtroIndicadorMonto = "";
+    	String filtroLat = "";
+    	String filtroLng = "";
+    	String filtroKms = "";
     	
     	if(filtros != null){
     		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
@@ -213,6 +245,15 @@ public class ReTechDataService {
     		if(filtros.getIndicadorMonto() != null && !filtros.getIndicadorMonto().isEmpty()) {
     			filtroIndicadorMonto = filtros.getIndicadorMonto();
     		}
+    		if(filtros.getLatBusc() != null && !filtros.getLatBusc().isEmpty()) {
+    			filtroLat = filtros.getLatBusc();
+    		}
+    		if(filtros.getLngBusc() != null && !filtros.getLngBusc().isEmpty()) {
+    			filtroLng = filtros.getLngBusc();
+    		}
+    		if(filtros.getKmBusc() != null && !filtros.getKmBusc().isEmpty()) {
+    			filtroKms = filtros.getKmBusc();
+    		}
     	}
     	url += "estado=" + filtroEstado
     			+ "&tipo=" + filtroTipo
@@ -222,7 +263,10 @@ public class ReTechDataService {
     			+ "&finBusc=" + filtroFinBusc
     			+ "&periodoScrap=" + filtroPeriodoScrap
     			+ "&rangosPrecio=" + filtroRangosPrecio
-    			+ "&indicadorMonto=" + filtroIndicadorMonto;
+    			+ "&indicadorMonto=" + filtroIndicadorMonto
+    			+ "&latBusc=" + filtroLat
+    			+ "&lngBusc=" + filtroLng
+    			+ "&kmBusc=" + filtroKms;
         
     	try {
             // Llama al web service y obtiene la respuesta como un JSONObject
@@ -253,6 +297,9 @@ public class ReTechDataService {
     	String filtroPrecioM2Ini = "";
     	String filtroPrecioM2Fin = "";
     	String filtroPeriodoScrap = "";
+    	String filtroLat = "";
+    	String filtroLng = "";
+    	String filtroKms = "";
     	
     	if(filtros != null){
     		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
@@ -282,6 +329,15 @@ public class ReTechDataService {
     		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
     			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
     		}
+    		if(filtros.getLatBusc() != null && !filtros.getLatBusc().isEmpty()) {
+    			filtroLat = filtros.getLatBusc();
+    		}
+    		if(filtros.getLngBusc() != null && !filtros.getLngBusc().isEmpty()) {
+    			filtroLng = filtros.getLngBusc();
+    		}
+    		if(filtros.getKmBusc() != null && !filtros.getKmBusc().isEmpty()) {
+    			filtroKms = filtros.getKmBusc();
+    		}
     		
     	}
     	url += "estado=" + filtroEstado
@@ -292,7 +348,10 @@ public class ReTechDataService {
     			+ "&precioFichaFin=" + filtroPrecioFichaFin
     			+ "&preciom2Ini=" + filtroPrecioM2Ini
     			+ "&preciom2Fin=" + filtroPrecioM2Fin
-    			+ "&periodoScrap=" + filtroPeriodoScrap;
+    			+ "&periodoScrap=" + filtroPeriodoScrap
+    			+ "&latBusc=" + filtroLat
+    			+ "&lngBusc=" + filtroLng
+    			+ "&kmBusc=" + filtroKms;
         
     	ResumenTipoModel[] response = restTemplate.getForObject(url, ResumenTipoModel[].class);
         return List.of(response); 

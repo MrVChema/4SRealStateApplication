@@ -1,12 +1,19 @@
-2025-01-15T11:38:51.773-06:00  INFO 40852 --- [cuatroSRealApplication] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (1 addition, 0 deletions, 0 modifications)
-2025-01-15T11:38:52.855-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : Starting CuatroSRealApplication using Java 23.0.1 with PID 40852 (/Users/Usuario/eclipse-workspace/4SRealEstateApplication/target/classes started by Usuario in /Users/Usuario/eclipse-workspace/4SRealEstateApplication)
-2025-01-15T11:38:52.856-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : No active profile set, falling back to 1 default profile: "default"
-2025-01-15T11:38:53.667-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8084 (http)
-2025-01-15T11:38:53.678-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-15T11:38:53.679-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
-2025-01-15T11:38:53.712-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-15T11:38:53.713-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 840 ms
-2025-01-15T11:38:53.905-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-15T11:38:53.924-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8084 (http) with context path '/'
-2025-01-15T11:38:53.941-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : Started CuatroSRealApplication in 1.226 seconds (process running for 21985.682)
-2025-01-15T11:38:53.945-06:00  INFO 40852 --- [cuatroSRealApplication] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2025-02-28T09:04:41.856-06:00  INFO 50420 --- [cuatroSRealApplication] [RMI TCP Connection(1238)-127.0.0.1] inMXBeanRegistrar$SpringApplicationAdmin : Application shutdown requested.
+2025-02-28T09:47:46.829-06:00  INFO 1043 --- [cuatroSRealApplication] [main] c.c.init.cuatroSRealApplicationTests     : Starting cuatroSRealApplicationTests using Java 23.0.1 with PID 1043 (started by Usuario in /Users/Usuario/eclipse-workspace/4SRealEstateApplication)
+2025-02-28T09:47:46.832-06:00  INFO 1043 --- [cuatroSRealApplication] [main] c.c.init.cuatroSRealApplicationTests     : No active profile set, falling back to 1 default profile: "default"
+2025-02-28T09:47:48.638-06:00  INFO 1043 --- [cuatroSRealApplication] [main] c.c.init.cuatroSRealApplicationTests     : Started cuatroSRealApplicationTests in 2.26 seconds (process running for 3.885)
+2025-02-28T09:48:01.489-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : Starting CuatroSRealApplication using Java 23.0.1 with PID 1054 (/Users/Usuario/eclipse-workspace/4SRealEstateApplication/target/classes started by Usuario in /Users/Usuario/eclipse-workspace/4SRealEstateApplication)
+2025-02-28T09:48:01.492-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : No active profile set, falling back to 1 default profile: "default"
+2025-02-28T09:48:01.599-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-02-28T09:48:01.599-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-02-28T09:48:02.723-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8084 (http)
+2025-02-28T09:48:02.744-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-02-28T09:48:02.745-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2025-02-28T09:48:02.815-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-02-28T09:48:02.815-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1215 ms
+2025-02-28T09:48:03.279-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-02-28T09:48:03.320-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8084 (http) with context path '/'
+2025-02-28T09:48:03.332-06:00  INFO 1054 --- [cuatroSRealApplication] [restartedMain] c.c.init.CuatroSRealApplication          : Started CuatroSRealApplication in 2.409 seconds (process running for 3.584)
+2025-02-28T09:48:41.834-06:00  INFO 1054 --- [cuatroSRealApplication] [http-nio-8084-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-02-28T09:48:41.835-06:00  INFO 1054 --- [cuatroSRealApplication] [http-nio-8084-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-02-28T09:48:41.837-06:00  INFO 1054 --- [cuatroSRealApplication] [http-nio-8084-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms

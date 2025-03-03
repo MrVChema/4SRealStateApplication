@@ -3,6 +3,7 @@ package com.cuatroSReal.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ReTechDataModel {
+	private String idConsulta;
 	private String url;
     private String diasPub;
     private String antiguedad;
@@ -194,5 +195,11 @@ public class ReTechDataModel {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	public String getIdConsulta() {
+		return idConsulta;
+	}
+	public void setIdConsulta(String idConsulta) {
+		this.idConsulta = idConsulta;
 	}
 }

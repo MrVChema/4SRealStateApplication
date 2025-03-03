@@ -134,14 +134,24 @@ document.addEventListener("DOMContentLoaded", function () {
     // Capturar el evento submit del formulario
     form.addEventListener("submit", function (event) {
         event.preventDefault(); // Evita que se recargue la página
-
-        // Obtener valores seleccionados de los selects
+		
+		// Obtener valores seleccionados de los selects
         const selectedEstados = getSelectedValues("estados");
         const selectedTipos = getSelectedValues("tipos");
         const selectedZonas = getSelectedValues("zonas");
         const selectedSegmentos = getSelectedValues("segmentos");
 		const selectedPeriodo = getSelectedValues("periodo");
+		const latBusc = form["latBusc"].value;
+		const lngBusc = form["lngBusc"].value;
+		const kmBusc = $("input[type='radio'][name='kmBusc']:checked").val();
 
+		if (latBusc || lngBusc){
+			if (!latBusc || !lngBusc){
+				alert("Por favor, complete latitud y longitud.");
+				return;
+			}
+		}
+		
         // Crear JSON con los datos del formulario
         const jsonData = {
             estados: selectedEstados,
@@ -153,11 +163,14 @@ document.addEventListener("DOMContentLoaded", function () {
             iniPrecioM2Busc: form["iniPrecioM2Busc"].value,
             finPrecioM2Busc: form["finPrecioM2Busc"].value,
 			periodoScrap: selectedPeriodo,
+			latBusc: latBusc,
+			lngBusc: lngBusc,
+			kmBusc: kmBusc,
         };
 
         // Llamadas a diferentes webservices
         fetchAndUpdateTable("/api/consulta", jsonData, "#myTable tbody", "registrosTotales", processGeneralTableData);
-		fetchAndUpdateTable("/api/consultaSaliente", jsonData, "#myTableSaliente tbody", "registrosSalienteTotales", processGeneralTableData);
+		fetchAndUpdateTable("/api/consultaSaliente", jsonData, "#myTableSaliente tbody", "registrosSalientesTotales", processGeneralTableData);
         fetchAndUpdateTable("/api/consultarDetalleViviendaV", jsonData, "#myTableResumenViviendaV tbody", "registrosTotalesViviendaV", processResumenTableDataVivienda);
         fetchAndUpdateTable("/api/consultarDetalleViviendaH", jsonData, "#myTableResumenViviendaH tbody", "registrosTotalesViviendaH", processResumenTableDataVivienda);
         fetchAndUpdateTable("/api/consultarDetalleLocales", jsonData, "#myTableResumenLocales tbody", "registrosTotalesLocales", processResumenTableData);
@@ -220,7 +233,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Actualizar el contador de registros
 		if(registrosLabelId == 'registrosTotales'){
-			document.getElementById(registrosLabelId).innerHTML = `Registros totales consultados: ${data.length}`;
+			document.getElementById(registrosLabelId).innerHTML = `Registros totales inventario: ${data.length}`;
+		}else if(registrosLabelId == 'registrosSalientesTotales'){
+			document.getElementById(registrosLabelId).innerHTML = `Registros totales salientes: ${data.length}`;
 		}else
         	document.getElementById(registrosLabelId).innerHTML = `Registros totales: ${totalRegistros}`;
 
@@ -232,6 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Función para procesar datos de la tabla general
     function processGeneralTableData(row) {
         return `
+			<td>${row.idConsulta || ""}</td>
             <td>${row.locEstado || ""}</td>
             <td>${row.locTipo || ""}</td>
             <td>${row.zona || ""}</td>
@@ -302,13 +318,14 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById("exportExcel").addEventListener("click", function () {
     //exportTableToExcel("myTable", "DatosExportados");
 	const tables = [
-	        { tableID: "myTable", sheetName: "Datos Generales" },
+	        { tableID: "myTable", sheetName: "Detalle Inventario" },
 	        { tableID: "myTableResumenViviendaV", sheetName: "Resumen Vivienda Vertical" },
 			{ tableID: "myTableResumenViviendaH", sheetName: "Resumen Vivienda Horizontal" },
 	        { tableID: "myTableResumenLocales", sheetName: "Resumen Locales" },
 	        { tableID: "myTableResumenOficinas", sheetName: "Resumen Oficinas" },
 	        { tableID: "myTableResumenBodegas", sheetName: "Resumen Bodegas" },
 			{ tableID: "myTableResumenSinAsignar", sheetName: "Resumen Sin Asignar" },
+			{ tableID: "myTableSaliente", sheetName: "Detalle Salientes" },
 	    ];
 
 	exportTableToExcel(tables, "DatosExportados");
@@ -358,12 +375,13 @@ function exportTableToKMZ(tableID, fileName) {
     const data = rows.slice(1).map(row => {
         const cells = row.cells;
         return {
-            estado: cells[0]?.innerText.trim() || "",
-            tipo: cells[1]?.innerText.trim() || "",
-            zona: cells[2]?.innerText.trim() || "",
-			precio: cells[8]?.innerText.trim() || "",
-            lat: cells[12]?.innerText.trim() || "",
-            lng: cells[13]?.innerText.trim() || "",
+			id: cells[0]?.innerText.trim() || "",
+            estado: cells[1]?.innerText.trim() || "",
+            tipo: cells[2]?.innerText.trim() || "",
+            zona: cells[3]?.innerText.trim() || "",
+			precio: cells[9]?.innerText.trim() || "",
+            lat: cells[13]?.innerText.trim() || "",
+            lng: cells[14]?.innerText.trim() || "",
         };
     });
 
@@ -377,7 +395,7 @@ function exportTableToKMZ(tableID, fileName) {
 		            if (row.lat && row.lng) {
 		                return `
 		      <Placemark>
-		        <name>${row.estado} - ${row.zona}</name>
+		        <name>${row.id}</name>
 		        <description>${row.precio} | ${row.tipo}</description>
 		        <Point>
 		          <coordinates>${row.lng},${row.lat},0</coordinates>

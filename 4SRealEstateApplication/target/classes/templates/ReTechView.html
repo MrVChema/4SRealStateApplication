@@ -14,7 +14,7 @@
 	</head>
 	<body>
 		<div class="container mt-5">
-		    <h2 class="mb-4">Datos desde el WebService</h2>
+		    <h2 class="mb-4">Búsqueda SCRAP/BIG DATA</h2>
 		    
 		    <form class="needs-validation" novalidate>
 		    	<label>Estado:</label>
@@ -55,6 +55,14 @@
     				<option th:each="periodo : ${periodosList}" th:value="${periodo.catalogName}" th:text="${periodo.catalogName}"></option>
 				</select>
 				</br>
+				<label>Latitud:</label> 
+				<input type="text" id="latBusc" name="latBusc" size="10" />
+				<label>Longitud: </label>
+				<input type="text" id="lngBusc" name="lngBusc" size="10" />
+				<input type="radio" id="km2Busc" name="kmBusc" value="0.02" checked /><label for="km2Busc">2 Km</label>
+				<input type="radio" id="km3Busc" name="kmBusc" value="0.03" /><label for="km3Busc">3 Km</label>
+				<input type="radio" id="km5Busc" name="kmBusc" value="0.05" /><label for="km5Busc">5 Km</label>
+				</br>
 				<button type="submit" id="submit" class="btn btn-primary btn-sm mt-3">Buscar</button>
 				</br>
 				<button id="exportExcel" class="btn btn-secondary mt-3">Exportar a Excel</button>
@@ -67,13 +75,13 @@
 			    <!-- Pestaña 1: Resumen de datos -->
 			    <li class="nav-item" role="presentation">
 			        <button class="nav-link" id="datos-tab" data-bs-toggle="tab" data-bs-target="#datos" type="button" role="tab" aria-controls="datos" aria-selected="false">
-			            Resumen de datos
+			            Resumen de inventario
 			        </button>
 			    </li>
 			    <!-- Pestaña 2: Detalle de datos -->
 			    <li class="nav-item" role="presentation">
 			        <button class="nav-link active" id="tabla-tab" data-bs-toggle="tab" data-bs-target="#tabla" type="button" role="tab" aria-controls="tabla" aria-selected="true">
-			            Detalle de datos
+			            Detalle de inventario
 			        </button>
 			    </li>
 			    <!-- Pestaña 2: Detalle de datos -->
@@ -87,8 +95,10 @@
 			<div class="tab-content mt-3" id="myTabContent">
 			    <!-- Contenido de la pestaña Datos Fijos -->
 			    <div class="tab-pane fade" id="datos" role="tabpanel" aria-labelledby="datos-tab">
-			        <h3>Resumen de datos</h3>
-			        <label class="form-label" id="registrosTotales" >Registros totales consultados:</label>
+			        <h3>Resumen de inventario</h3>
+			        <label class="form-label" id="registrosTotales" >Registros totales inventario:</label>
+			        <br>
+			        <label class="form-label" id="registrosSalientesTotales" >Registros totales salientes:</label>
 			        <ul id="seccionDetalleViviendaV">
 			            <h2>Vivienda Vertical</h2>
 			            <label class="form-label" id="registrosTotalesViviendaV" >Registros viviendo:</label>
@@ -331,6 +341,7 @@
 			        <table id="myTable" class="table table-bordered" style="width:100%">
 				        <thead class="table-dark">
 				            <tr>
+				            	<th>ID</th>
 				            	<th>Estado</th>
 				                <th>Tipo</th>
 				                <th>Zona</th>
@@ -349,6 +360,7 @@
 				        </thead>
 				        <tbody>
 				            <tr th:each="data : ${dataList}">
+				            	<td th:text="${data.idConsulta}"></td>
 				            	<td th:text="${data.locEstado}"></td>
 				                <td th:text="${data.locTipo}"></td>
 				                <td th:text="${data.zona}"></td>
@@ -375,6 +387,7 @@
 			        <table id="myTableSaliente" class="table table-bordered" style="width:100%">
 				        <thead class="table-dark">
 				            <tr>
+				            	<th>ID</th>
 				            	<th>Estado</th>
 				                <th>Tipo</th>
 				                <th>Zona</th>
@@ -393,6 +406,7 @@
 				        </thead>
 				        <tbody>
 				            <tr th:each="dataS : ${dataListSaliente}">
+				            	<td th:text="${dataS.idConsulta}"></td>
 				            	<td th:text="${dataS.locEstado}"></td>
 				                <td th:text="${dataS.locTipo}"></td>
 				                <td th:text="${dataS.zona}"></td>
