@@ -21,5 +21,21 @@
     </form>
     
     <p th:if="${message}" th:text="${message}"></p>
+    
+    <!-- Formulario para el segundo archivo -->
+    <h2>Procesar INSERTS</h2>
+    <form method="POST" action="/inserts1" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".txt" required />
+        <button type="submit">Generar INSERTs</button>
+    </form>
+    
+    <!-- Formulario para recibir texto -->
+	<h2>Procesar UPDATES</h2>
+	<form method="POST" action="/inserts2">
+	  <textarea name="estadoInsert" rows="1" cols="30" placeholder="Ingresa tu texto aquí" required></textarea>
+	  <button type="submit">Generar UPDATEs</button>
+	</form>
+    
+    
 </body>
 </html>

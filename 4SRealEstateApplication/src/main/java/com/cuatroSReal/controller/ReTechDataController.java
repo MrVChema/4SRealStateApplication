@@ -1,6 +1,8 @@
 package com.cuatroSReal.controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -62,6 +64,7 @@ public class ReTechDataController {
         CHARACTER_REPLACEMENTS.put("Ã©", "é");
         CHARACTER_REPLACEMENTS.put("Ã±", "ñ");
         CHARACTER_REPLACEMENTS.put("ﾃ］", "án");
+        CHARACTER_REPLACEMENTS.put("Ã¡", "á");
         CHARACTER_REPLACEMENTS.put("Ã¡", "á");
         // Agrega más caracteres según sea necesario
         
@@ -393,6 +396,41 @@ public class ReTechDataController {
             return "uploadExcelView";
         }
     }
+    
+    @PostMapping("/inserts1")
+    public String insertsScrap(@RequestParam("file") MultipartFile file, Model model) {
+    	try {
+            // Leer archivo TXT
+            List<String> inserts = leerInserts(file);
+            
+            // Crear JSON
+            List<Map<String, String>> jsonData = new ArrayList<>();
+            for (String insert : inserts) {
+                Map<String, String> registro = new HashMap<>();
+                registro.put("sql", insert);
+                jsonData.add(registro);
+            }
+            
+            // Enviar a WebService
+            ResponseEntity<String> response = reTechdataService.setCargaMasiva(jsonData);
+            
+            model.addAttribute("message", "Proceso completado. Respuesta: " + response.getBody());
+            return "redirect:/uploadExcelView";
+            
+        } catch (IOException e) {
+            model.addAttribute("message", "Error: " + e.getMessage());
+            return "redirect:/uploadExcelView";
+        }
+    }
+    
+    @PostMapping("/inserts2")
+    public String updatesScrap(@RequestParam("estadoInsert") String estado, Model model) {
+	    // Enviar a WebService
+	    String response = reTechdataService.setUpdateCargaMasiva(estado);
+	    
+	    model.addAttribute("message", "Proceso completado. Respuesta: " + response);
+	    return "redirect:/uploadExcelView";
+    }
 
     private String formatearValor(Cell cell, String tipo) {
         DataFormatter dataFormatter = new DataFormatter();
@@ -448,5 +486,20 @@ public class ReTechDataController {
             texto = texto.replace(entry.getKey(), entry.getValue());
         }
         return texto;
+    }
+    
+    private List<String> leerInserts(MultipartFile file) throws IOException {
+        List<String> inserts = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                if (!linea.trim().isEmpty()) {
+                    inserts.add(linea.trim());
+                }
+            }
+        }
+        return inserts;
     }
 }
