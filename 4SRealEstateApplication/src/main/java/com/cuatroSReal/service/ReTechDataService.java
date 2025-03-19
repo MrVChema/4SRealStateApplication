@@ -3,9 +3,15 @@ package com.cuatroSReal.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.cuatroSReal.model.CatalogDataModel;
@@ -355,6 +361,115 @@ public class ReTechDataService {
         
     	ResumenTipoModel[] response = restTemplate.getForObject(url, ResumenTipoModel[].class);
         return List.of(response); 
+    }
+    
+    public List<ResumenTipoModel> setCargaChema(FiltrosConsultaBigDataModel filtros) {
+    	String url = "http://localhost:8080/api/consultarDetalleTipos?";
+    	
+    	String filtroEstado = "";
+    	String filtroTipo = "";
+    	String filtroZona = "";
+    	String filtroSegmento = "";
+    	String filtroPrecioFichaIni = "";
+    	String filtroPrecioFichaFin = "";
+    	String filtroPrecioM2Ini = "";
+    	String filtroPrecioM2Fin = "";
+    	String filtroPeriodoScrap = "";
+    	String filtroLat = "";
+    	String filtroLng = "";
+    	String filtroKms = "";
+    	
+    	if(filtros != null){
+    		if(filtros.getEstados() != null && !filtros.getEstados().isEmpty()) {
+    			filtroEstado = String.join(",", filtros.getEstados() );
+    		}
+    		if(filtros.getTipos() != null && !filtros.getTipos().isEmpty()) {
+    			filtroTipo = String.join(",", filtros.getTipos() );
+    		}
+    		if(filtros.getZonas() != null && !filtros.getZonas().isEmpty()) {
+    			filtroZona = String.join(",", filtros.getZonas() );
+    		}
+    		if(filtros.getSegmentos() != null && !filtros.getSegmentos().isEmpty()) {
+    			filtroSegmento = String.join(",", filtros.getSegmentos() );
+    		}
+    		if(filtros.getIniPrecioFBusc() != null && !filtros.getIniPrecioFBusc().isEmpty()) {
+    			filtroPrecioFichaIni = filtros.getIniPrecioFBusc();
+    		}
+    		if(filtros.getFinPrecioFBusc() != null && !filtros.getFinPrecioFBusc().isEmpty()) {
+    			filtroPrecioFichaFin = filtros.getFinPrecioFBusc();
+    		}
+    		if(filtros.getIniPrecioM2Busc() != null && !filtros.getIniPrecioM2Busc().isEmpty()) {
+    			filtroPrecioM2Ini = filtros.getIniPrecioM2Busc();
+    		}
+    		if(filtros.getFinPrecioM2Busc() != null && !filtros.getFinPrecioM2Busc().isEmpty()) {
+    			filtroPrecioM2Fin = filtros.getFinPrecioM2Busc();
+    		}
+    		if(filtros.getPeriodoScrap() != null && !filtros.getPeriodoScrap().isEmpty()) {
+    			filtroPeriodoScrap = String.join(",", filtros.getPeriodoScrap() );
+    		}
+    		if(filtros.getLatBusc() != null && !filtros.getLatBusc().isEmpty()) {
+    			filtroLat = filtros.getLatBusc();
+    		}
+    		if(filtros.getLngBusc() != null && !filtros.getLngBusc().isEmpty()) {
+    			filtroLng = filtros.getLngBusc();
+    		}
+    		if(filtros.getKmBusc() != null && !filtros.getKmBusc().isEmpty()) {
+    			filtroKms = filtros.getKmBusc();
+    		}
+    		
+    	}
+    	url += "estado=" + filtroEstado
+    			+ "&tipo=" + filtroTipo
+    			+ "&zona=" + filtroZona
+    			+ "&segmento=" + filtroSegmento
+    			+ "&precioFichaIni=" + filtroPrecioFichaIni
+    			+ "&precioFichaFin=" + filtroPrecioFichaFin
+    			+ "&preciom2Ini=" + filtroPrecioM2Ini
+    			+ "&preciom2Fin=" + filtroPrecioM2Fin
+    			+ "&periodoScrap=" + filtroPeriodoScrap
+    			+ "&latBusc=" + filtroLat
+    			+ "&lngBusc=" + filtroLng
+    			+ "&kmBusc=" + filtroKms;
+        
+    	ResumenTipoModel[] response = restTemplate.getForObject(url, ResumenTipoModel[].class);
+        return List.of(response); 
+    }
+    
+    public ResponseEntity<String> setCargaMasiva(List<Map<String, String>> jsonInserts) {
+        String url = "http://localhost:8080/api/cargaMasiva1";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        HttpEntity<List<Map<String, String>>> request = 
+            new HttpEntity<>(jsonInserts, headers);
+        
+        return restTemplate.exchange(
+        	url,
+            HttpMethod.POST,
+            request,
+            String.class
+        );
+    }
+    
+    public String setUpdateCargaMasiva(String estado) {
+        String url = "http://localhost:8080/api/cargaMasiva2";
+        
+        // Crear HttpHeaders
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        
+        // Crear MultiValueMap para los parámetros
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("estado", estado);
+        
+        // Crear HttpEntity con headers y body
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
+        
+        // Realizar solicitud POST
+        ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
+        
+        return response.getBody();
     }
     
 }
